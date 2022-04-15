@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>minotaurus</title>
+		<meta charset="UTF-8">
+	</head>
+	<body onload="rahmen();level(1)" >
+		<svg id="svg1" width="1150" height="880" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+			<!-- Definitionen -->
+			<defs>
+			
+				<!-- Funktionen -->
+				<script type="text/javascript"><![CDATA[
+					
+					var key=0;
+					var levelnummer=0;
+					var keyFlag=true;
+					var iteration=0;
+					var torOffen=false;
+					var fahrSperre=false;
+					var licht=0;
+					var schluessel=0;
+					var lampe=0;
+					var lampeB=0;
+					var LFlag=false;
+					var streich=1;
+					var streichB=160;
+					var SFlag=false;
+					var keystopp=false;
+					
+					// Reaktion bei Betätigung der Pfeiltasten
+					window.addEventListener('keydown', function (e) {
+						if(!keystopp)
+							key = e.keyCode;
+						
+						if(key==37) //links
+						{
+							document.getElementById('998').setAttribute("transform", "rotate(0)");
+							if(!fahrSperre && ipos-1>-1 && L[levelnummer][jpos][ipos-1]!=0 && L[levelnummer][jpos][ipos-1]!=6)
+							{
+								ipos=ipos-1;
+								document.getElementById('999').setAttribute("x", 110+ipos*50);
+							}
+							else
+							{
+								if(L[levelnummer][jpos][ipos-1]==6 && schluessel>0)
+								{
+									L[levelnummer][jpos][ipos-1]=1;
+									EraseElement(levelnummer+""+(ipos-1)+""+(jpos));
+									schluessel=schluessel-1;
+									document.getElementById('TextK').textContent=schluessel;
+								}
+							}
+						}
+						else
+						{
+							if(key==38) //hoch
+							{
+								document.getElementById('998').setAttribute("transform", "rotate(90)");
+								if(!fahrSperre && jpos-1>-1 && L[levelnummer][jpos-1][ipos]!=0 && L[levelnummer][jpos-1][ipos]!=6)
+								{
+									jpos=jpos-1;
+									document.getElementById('999').setAttribute("y", 110+jpos*50);
+								}
+								else
+								{
+									if(L[levelnummer][jpos-1][ipos]==6 && schluessel>0)
+									{
+										L[levelnummer][jpos-1][ipos]=1;
+										EraseElement(levelnummer+""+(ipos)+""+(jpos-1));
+										schluessel=schluessel-1;
+										document.getElementById('TextK').textContent=schluessel;
+									}
+								}
+							}
+							else
+							{
+								if(key==39) //rechts
+								{
+									document.getElementById('998').setAttribute("transform","scale(-1,1)");
+									if(!fahrSperre && ipos+1<15 && L[levelnummer][jpos][ipos+1]!=0 && L[levelnummer][jpos][ipos+1]!=6)
+									{
+										ipos=ipos+1;
+										document.getElementById('999').setAttribute("x", 110+ipos*50);
+									}
+									else
+									{
+										if(L[levelnummer][jpos][ipos+1]==6 && schluessel>0)
+										{
+											L[levelnummer][jpos][ipos+1]=1;
+											EraseElement(levelnummer+""+(ipos+1)+""+(jpos));
+											schluessel=schluessel-1;
+											document.getElementById('TextK').textContent=schluessel;
+										}
+									}
+								}
+								else
+								{
+									if(key==40) //runter
+									{
+										document.getElementById('998').setAttribute("transform", "rotate(-90)");
+										if(!fahrSperre && jpos+1<15 && L[levelnummer][jpos+1][ipos]!=0 && L[levelnummer][jpos+1][ipos]!=6)
+										{
+											jpos=jpos+1;
+											document.getElementById('999').setAttribute("y", 110+jpos*50);
+										}
+										else
+										{
+											if(L[levelnummer][jpos+1][ipos]==6 && schluessel>0)
+											{
+												L[levelnummer][jpos+1][ipos]=1;
+												EraseElement(levelnummer+""+(ipos)+""+(jpos+1));
+												schluessel=schluessel-1;
+												document.getElementById('TextK').textContent=schluessel;
+											}
+										}
+									}
+								}
+							}
+						}
+						if(key<41)
+							siegBed();
+						if(key==83)	//S
+						{
+							if(licht==0)
+							{
+								if(streich>0)
+								{
+									document.getElementById('kerze').setAttribute("visibility", "visible");
+									SFlag=true;
+									brenne(1);
+									document.getElementById('taschenlampe').setAttribute("visibility", "hidden");
+									document.getElementById('dunkel').setAttribute("visibility", "hidden");
+									licht=1;
+								}
+							}
+							else
+							{
+								if(licht==1)
+								{
+									brenne(0);
+								}
+								else
+								{
+									if(streich>0)
+									{
+										SFlag=true;
+										brenne(1);
+										document.getElementById('kerze').setAttribute("visibility", "visible");
+										document.getElementById('taschenlampe').setAttribute("visibility", "hidden");
+										document.getElementById('dunkel').setAttribute("visibility", "hidden");
+										licht=1;
+									}
+								}
+							}
+						}
+						if(key==84)	//T
+						{
+							if(licht==0)
+							{
+								if(lampe>0)
+								{
+									LFlag=true;
+									leuchte(1);
+									document.getElementById('kerze').setAttribute("visibility", "hidden");
+									document.getElementById('taschenlampe').setAttribute("visibility", "visible");
+									document.getElementById('dunkel').setAttribute("visibility", "hidden");
+									licht=2;
+								}
+							}
+							else
+							{
+								if(licht==1)
+								{
+									if(lampe>0)
+									{
+										LFlag=true;
+										leuchte(1);
+										document.getElementById('kerze').setAttribute("visibility", "hidden");
+										document.getElementById('taschenlampe').setAttribute("visibility", "visible");
+										document.getElementById('dunkel').setAttribute("visibility", "hidden");
+										licht=2;
+									}
+								}
+								else
+								{
+									leuchte(0);
+								}
+							}
+						}
+						
+						if(!fahrSperre)
+						{
+							nextLevel();
+							mino();
+							findKey();
+							findeLampe();
+							findeStreich();
+						}
+					})
+				
+					window.addEventListener('keyup', function (e) {
+						key = false;
+						keyFlag=true;
+					})
+
+					// welches Symbol
+					var P = new Array();
+									//  0  1  2  3  4  5  6  7  8  9 10
+					P[ 1] = new Array( 43,43,43, 1,43,22,43,18,43,43,43 );
+					P[ 2] = new Array(  0,20,23, 2,16,17,14,19,25,21,15 );
+					P[ 3] = new Array(  3,16,17, 2,11,42,14,19,20,21,15 );
+					P[ 4] = new Array(  3,20,32, 2,16,17,14,19,10,21,15 );
+					P[ 5] = new Array(  0,24,17, 2,19,20,14,29,16,31,15 );
+					P[ 6] = new Array(  0,34,23, 2,24,32,14,28,41,38,15 );	// N 50° 51.472'
+					P[ 7] = new Array(  3,10,29, 2,28,33,14,32,39,25,15 );	// E 11° 40.194'
+					
+					/* alt
+					P[ 6] = new Array(  0,34,23, 2,24,32,14,28,41,37,15 );	// N 50° 51.476'
+					P[ 7] = new Array(  3,10,29, 2,28,33,14,32,26,34,15 );	// E 11° 40.185' 
+					
+					
+					neu
+					N 50° 51.472 E 011° 40.194
+					
+					*/
+					
+					
+					
+					var svgns = "http://www.w3.org/2000/svg";
+					var xlink = 'http://www.w3.org/1999/xlink';
+					var i=0;var j=0;
+					var last=0;
+					var ipos=0; var jpos=0;
+					
+					
+					function brenne(zustand)
+					{
+						if(zustand==0)
+						{
+							SFlag=false;
+							document.getElementById('kerze').setAttribute("visibility", "hidden");
+							document.getElementById('taschenlampe').setAttribute("visibility", "hidden");
+							document.getElementById('dunkel').setAttribute("visibility", "visible");
+							licht=0;
+							if(streichB==0 && streich>0)
+							{
+								streich=streich-1;
+								document.getElementById('TextS').textContent=streich;
+								if(streich>0)
+								{
+									streichB=160;
+									document.getElementById('SB').setAttribute("width", "160");
+								}
+							}
+						}
+						if(zustand==1 && SFlag)
+						{
+							LFlag=false;
+							streichB=streichB-1;
+							document.getElementById('SB').setAttribute("width", ""+(streichB));
+							if(streichB==0)
+							{
+								window.setTimeout(brenne, 100,0);
+							}
+							else
+							{
+								window.setTimeout(brenne, 100,1);
+							}
+						}
+					}
+					
+					function leuchte(zustand)
+					{
+						if(zustand==0)
+						{
+							LFlag=false;
+							document.getElementById('kerze').setAttribute("visibility", "hidden");
+							document.getElementById('taschenlampe').setAttribute("visibility", "hidden");
+							document.getElementById('dunkel').setAttribute("visibility", "visible");
+							licht=0;
+							if(lampeB==0 && lampe>0)
+							{
+								lampe=lampe-1;
+								document.getElementById('TextT').textContent=lampe;
+								if(lampe>0)
+								{
+									lampeB=160;
+									document.getElementById('TB').setAttribute("width", "160");
+								}
+							}
+						}
+						if(zustand==1 && LFlag)
+						{
+							SFlag=false;
+							lampeB=lampeB-1;
+							document.getElementById('TB').setAttribute("width", ""+(lampeB));
+							if(lampeB==0)
+							{
+								window.setTimeout(leuchte, 100,0);
+							}
+							else
+							{
+								window.setTimeout(leuchte, 100,1);
+							}
+						}
+					}
+					
+					function abbrechen()
+					{
+						return false;
+					}
+					
+					function siegBed()
+					{
+						if(L[levelnummer][jpos][ipos]==5 && !keystopp)
+						{
+							keystopp=true;
+							leuchte(0);
+							brenne(0);
+							iteration=0;
+							var object = document.createElementNS(svgns, 'use');
+							object.setAttributeNS(xlink,'href','#Pergament');
+							object.setAttributeNS(null,'id','Perg');
+							object.setAttributeNS(null,'x',0);
+							object.setAttributeNS(null,'y',0);
+							object.setAttributeNS(null,'transform',"translate("+ipos+","+jpos+")");
+							document.getElementById('svg1').appendChild(object);
+							pergLaden();
+						}
+					}
+					
+					function pergLaden()
+					{
+						if(iteration<20)
+						{
+							iteration+=1;
+							document.getElementById('Perg').setAttribute("transform", "translate("+((430-(100+ipos*50))/20*iteration+(100+ipos*50))+","+((460-(100+jpos*50))/20*iteration+(100+jpos*50))+") scale("+(iteration/20)+","+(iteration/20)+")");
+							//document.getElementById('Perg').setAttribute("transform", "translate("+((430-(140+ipos*80))/20*iteration+(140+ipos*80))+","+((460-(140+jpos*80))/20*iteration+(140+jpos*80))+") scale("+(iteration/20)+","+(iteration/20)+")");
+							window.setTimeout(pergLaden, 50);
+						}
+						else
+						{
+							document.getElementById('Perg').setAttribute("transform", "translate(430,460) scale(1)");
+							iteration=0;
+							window.setTimeout(pergRollen, 200);
+						}
+					}
+					
+					function pergRollen()
+					{
+						if(iteration<54)
+						{
+							iteration+=1;
+							document.getElementById('Perg').setAttribute("transform", "translate("+(430-iteration*6)+",460) ");
+							document.getElementById('Rolle').setAttribute("width", ""+(60+12*iteration));
+							for(i=0; i<11; i++)
+							{
+								if(4*i<iteration)
+									document.getElementById("p"+P[levelnummer][10-i]).setAttribute("transform", "translate("+(iteration*12-i*45)+",0) ");
+							}
+							window.setTimeout(pergRollen, 30);
+							
+						}
+						else
+						{
+							document.getElementById("9999").setAttribute("visibility", "visible");
+						}
+					}
+					
+					function pergClose()
+					{
+						EraseElement('Perg');
+						document.getElementById('Rolle').setAttribute("width", "60");
+						for(i=0; i<11; i++)
+						{
+							document.getElementById("p"+P[last][i]).setAttribute("transform", "translate(0,0) ");
+						}
+						document.getElementById("9999").setAttribute("visibility", "hidden");
+						keystopp=false;
+					}
+					
+					function nextLevel()
+					{
+						if(L[levelnummer][jpos][ipos]==7)
+						{
+							window.setTimeout(omaWeg, 500);
+							leuchte(0);
+							brenne(0);
+							fahrSperre=true;
+							window.setTimeout(level, 1000,levelnummer+1);
+						}
+					}
+					
+					function omaWeg()
+					{
+						document.getElementById("999").setAttribute("visibility", "hidden");
+					}
+					
+					function mino()
+					{
+						if(L[levelnummer][jpos][ipos]==8)
+						{
+							fahrSperre=true;
+							window.setTimeout(window.location.reload(), 1000,1);
+						}
+					}
+					
+					function findKey()
+					{
+						if(L[levelnummer][jpos][ipos]==4)
+						{
+							EraseElement(levelnummer+""+(ipos)+""+(jpos));
+							L[levelnummer][jpos][ipos]=1;
+							schluessel=schluessel+1;
+							document.getElementById('TextK').textContent=schluessel;
+						}
+					}
+					
+					function findeLampe()
+					{
+						if(L[levelnummer][jpos][ipos]==3)
+						{
+							EraseElement(levelnummer+""+(ipos)+""+(jpos));
+							L[levelnummer][jpos][ipos]=1;
+							lampe=lampe+1;
+							document.getElementById('TextT').textContent=lampe;
+							if(lampe==1)
+							{
+								lampeB=160;
+								document.getElementById('TB').setAttribute("width", "160");
+							}
+						}
+					}
+					
+					function findeStreich()
+					{
+						if(L[levelnummer][jpos][ipos]==2)
+						{
+							EraseElement(levelnummer+""+(ipos)+""+(jpos));
+							L[levelnummer][jpos][ipos]=1;
+							streich=streich+1;
+							document.getElementById('TextS').textContent=streich;
+							if(streich==1)
+							{
+								streichB=160;
+								document.getElementById('SB').setAttribute("width", "160");
+							}
+						}
+					}
+					
+
+					//	Definition der Level
+					
+							// 0 Mauer
+							// 1 Weg 
+							// 2 Streichhölzer
+							// 3 Taschenlampe
+							// 4 Schlüssel
+							// 5 Geocache
+							// 6 Schlüsselloch
+							// 7 Next Level
+							// 8 Minotaurus
+							// 9 Oma Inge
+					
+					var L = new Array();
+					L[ 1] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 1][ 0] = new Array(  7,8,3,1,0,2,1,0,0,6,1,1,0,0,4 );
+					L[ 1][ 1] = new Array(  6,0,0,1,0,0,1,0,4,2,0,1,1,0,6 );
+					L[ 1][ 2] = new Array(  6,0,1,1,0,2,1,0,0,0,0,0,1,0,1 );
+					L[ 1][ 3] = new Array(  6,0,1,0,0,0,1,0,1,6,4,0,1,0,1 );
+					L[ 1][ 4] = new Array(  6,0,1,1,1,1,1,0,1,0,4,0,1,0,1 );
+					L[ 1][ 5] = new Array(  1,0,1,0,6,0,8,0,1,0,0,0,1,0,1 );
+					L[ 1][ 6] = new Array(  1,1,1,1,1,1,9,1,1,1,1,1,1,1,1 );
+					L[ 1][ 7] = new Array(  0,0,0,0,0,0,1,0,0,1,0,0,0,0,0 );
+					L[ 1][ 8] = new Array(  1,1,4,0,1,1,1,0,8,1,1,0,1,1,1 );
+					L[ 1][ 9] = new Array(  1,0,0,0,1,0,1,0,4,0,1,0,1,5,1 );
+					L[ 1][10] = new Array(  1,1,1,1,2,0,1,0,4,0,1,0,1,1,0 );
+					L[ 1][11] = new Array(  1,8,0,0,0,0,1,0,6,0,1,0,0,1,3 );
+					L[ 1][12] = new Array(  6,0,1,1,1,1,1,0,1,0,1,6,6,4,2 );
+					L[ 1][13] = new Array(  6,0,1,0,0,0,1,0,1,0,1,0,0,0,0 );
+					L[ 1][14] = new Array(  4,0,1,3,4,0,1,1,1,0,1,2,6,4,4 );
+					
+							// 0 Mauer
+							// 1 Weg 
+							// 2 Streichhölzer
+							// 3 Taschenlampe
+							// 4 Schlüssel
+							// 5 Geocache
+							// 6 Schlüsselloch
+							// 7 Next Level
+							// 8 Minotaurus
+							// 9 Oma Inge
+					
+					L[ 2] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 2][ 0] = new Array(  9,2,2,2,2,2,2,2,2,2,2,2,2,2,3 );
+					L[ 2][ 1] = new Array(  1,0,1,1,0,0,0,0,0,0,1,0,6,0,1 );
+					L[ 2][ 2] = new Array(  1,0,2,2,0,0,0,0,6,6,6,0,6,0,1 );
+					L[ 2][ 3] = new Array(  1,0,0,0,0,7,3,0,6,0,0,0,6,0,1 );
+					L[ 2][ 4] = new Array(  1,1,4,0,0,0,2,0,6,0,2,0,6,0,1 );
+					L[ 2][ 5] = new Array(  1,0,0,0,0,0,1,0,6,0,6,0,6,0,1 );
+					L[ 2][ 6] = new Array(  1,1,6,4,4,0,1,1,1,0,6,0,4,0,1 );
+					L[ 2][ 7] = new Array(  1,0,0,0,0,0,0,0,0,0,6,0,4,0,1 );
+					L[ 2][ 8] = new Array(  1,1,6,6,4,4,4,0,0,0,6,0,4,0,1 );
+					L[ 2][ 9] = new Array(  1,0,0,0,0,0,0,0,0,0,6,0,4,0,1 );
+					L[ 2][10] = new Array(  1,1,6,6,6,4,4,4,4,0,6,4,4,0,1 );
+					L[ 2][11] = new Array(  1,0,0,0,0,0,0,0,0,0,0,0,0,0,1 );
+					L[ 2][12] = new Array(  1,1,6,6,6,6,4,4,4,4,4,2,2,0,1 );
+					L[ 2][13] = new Array(  1,0,0,0,0,0,0,0,0,0,0,0,0,0,1 );
+					L[ 2][14] = new Array(  3,1,1,1,1,1,1,1,1,1,1,1,1,1,3 );
+					
+					L[ 3] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 3][ 0] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][ 1] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][ 2] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][ 3] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][ 4] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][ 5] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][ 6] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][ 7] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][ 8] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][ 9] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][10] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][11] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][12] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][13] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 3][14] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					
+					L[ 4] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 4][ 0] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][ 1] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][ 2] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][ 3] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][ 4] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][ 5] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][ 6] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][ 7] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][ 8] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][ 9] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][10] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][11] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][12] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][13] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 4][14] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					
+					L[ 5] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 5][ 0] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][ 1] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][ 2] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][ 3] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][ 4] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][ 5] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][ 6] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][ 7] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][ 8] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][ 9] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][10] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][11] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][12] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][13] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 5][14] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					
+					L[ 6] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 6][ 0] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][ 1] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][ 2] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][ 3] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][ 4] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][ 5] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][ 6] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][ 7] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][ 8] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][ 9] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][10] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][11] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][12] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][13] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 6][14] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					
+					L[ 7] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 7][ 0] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][ 1] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][ 2] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][ 3] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][ 4] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][ 5] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][ 6] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][ 7] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][ 8] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][ 9] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][10] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][11] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][12] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][13] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					L[ 7][14] = new Array(  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					
+
+					function PlatziereElement(element,x,y,id)
+					{
+						var object = document.createElementNS(svgns, 'use');
+						object.setAttributeNS(xlink,'href',element);
+						object.setAttributeNS(null,'id',id);
+						object.setAttributeNS(null,'x',x);
+						object.setAttributeNS(null,'y',y);
+						object.setAttributeNS(null,'transform',"rotate(0)");
+						document.getElementById('svg1').appendChild(object);
+					}
+					function EraseElement(id)
+					{
+						try
+						{
+							document.getElementById(id).remove();
+						}
+						catch(err)
+						{
+							return;
+						}
+					}
+					
+					function rahmen()
+					{
+						for(i=0; i<16; i++)
+						{
+							PlatziereElement('#Mauer',60+i*50,60,900+i);
+							PlatziereElement('#Mauer',60+i*50,860,920+i);
+						}
+						for(i=0; i<17; i++)
+						{
+							PlatziereElement('#Mauer',60,60+i*50,940+i);
+							PlatziereElement('#Mauer',860,60+i*50,960+i);
+						}
+						
+						for(i=1; i<16; i++)
+						{
+							for(j=1; j<16; j++)
+							{
+								PlatziereElement('#Hintergrund',60+i*50,60+j*50);
+							}
+						}
+					}
+					
+					function level(nummer)
+					{
+						levelnummer=nummer;
+						schluessel=0;
+						if(last>0)
+						{
+							for(i=0; i<15; i++)
+							{
+								for(j=0; j<15; j++)
+								{
+									EraseElement(last+""+i+""+j);
+								}
+							}
+							
+							fahrSperre=false;
+							EraseElement('999');
+							EraseElement('9999');
+							EraseElement('99999');
+							for(i=0; i<11; i++)
+							{
+								document.getElementById("p"+P[last][i]).setAttribute("transform", "translate(0,0) ");
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==0)
+									PlatziereElement('#Mauer',110+i*50,110+j*50,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==1)
+									PlatziereElement('#Hintergrund',110+i*50,110+j*50,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==2)
+									PlatziereElement('#Streichholz',110+i*50,110+j*50,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==3)
+									PlatziereElement('#Taschenlampe',110+i*50,110+j*50,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==4)
+									PlatziereElement('#Schluessel',110+i*50,110+j*50,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==5)
+									PlatziereElement('#Ziel',110+i*50,110+j*50,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==6)
+									PlatziereElement('#SchluesselLoch',110+i*50,110+j*50,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==7)
+									PlatziereElement('#Loch',110+i*50,110+j*50,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==8)
+									PlatziereElement('#Minotaurus',110+i*50,110+j*50,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<15; i++)
+						{
+							for(j=0; j<15; j++)
+							{
+								if(L[nummer][j][i]==9)
+								{
+									ipos=i;
+									jpos=j;
+									PlatziereElement('#Bulldozer',110+ipos*50,110+jpos*50,999);
+									document.getElementById('998').setAttribute("transform", "rotate(0)");
+								}
+							}
+						}
+						
+						
+						var object = document.createElementNS(svgns, 'g');
+						object.setAttributeNS(null,'id','99999');
+						object.setAttributeNS(null,'transform',"translate(900,100)");
+						
+						var object1 = document.createElementNS(svgns, 'rect');
+						object1.setAttributeNS(null,'x',0);
+						object1.setAttributeNS(null,'y',0);
+						object1.setAttributeNS(null,'rx',10);
+						object1.setAttributeNS(null,'ry',10);
+						object1.setAttributeNS(null,'width',200);
+						object1.setAttributeNS(null,'height',500);
+						object1.setAttributeNS(null,'stroke','#ffffff');
+						object1.setAttributeNS(null,'stroke-width','2');
+						object.appendChild(object1);
+						
+						var object2 = document.createElementNS(svgns, 'use');
+						object2.setAttributeNS(xlink,'href','#Streichholz');
+						object2.setAttributeNS(null,'x',70);
+						object2.setAttributeNS(null,'y',80);
+						object.appendChild(object2);
+						
+						var object2a = document.createElementNS(svgns, 'image');
+						object2a.setAttributeNS(xlink,'href','S.png');
+						object2a.setAttributeNS(null,'x',60);
+						object2a.setAttributeNS(null,'y',70);
+						object2a.setAttributeNS(null,'width',20);
+						object2a.setAttributeNS(null,'height',20);
+						object.appendChild(object2a);
+						
+						var object2b = document.createElementNS(svgns, 'rect');
+						object2b.setAttributeNS(null,'x',20);
+						object2b.setAttributeNS(null,'y',100);
+						object2b.setAttributeNS(null,'rx',2);
+						object2b.setAttributeNS(null,'ry',2);
+						object2b.setAttributeNS(null,'width',160);
+						object2b.setAttributeNS(null,'height',30);
+						object2b.setAttributeNS(null,'stroke','#ffffff');
+						object2b.setAttributeNS(null,'fill','#aaaaaa');
+						object2b.setAttributeNS(null,'stroke-width','1');
+						object.appendChild(object2b);
+						
+						var object2c = document.createElementNS(svgns, 'rect');
+						object2c.setAttributeNS(null,'x',20);
+						object2c.setAttributeNS(null,'y',100);
+						object2c.setAttributeNS(null,'rx',2);
+						object2c.setAttributeNS(null,'ry',2);
+						object2c.setAttributeNS(null,'id','SB');
+						object2c.setAttributeNS(null,'width',streichB);
+						object2c.setAttributeNS(null,'height',30);
+						object2c.setAttributeNS(null,'fill','#00ff00');
+						object.appendChild(object2c);
+						
+						var object2d = document.createElementNS(svgns, 'text');
+						object2d.setAttributeNS(null,'x',120);
+						object2d.setAttributeNS(null,'y',80);
+						object2d.setAttributeNS(null,'id','TextS');
+						object2d.setAttributeNS(null,'fill','#ffffff');
+						object2d.setAttributeNS(null,'font-size','40');
+						object2d.textContent=streich;
+						object.appendChild(object2d);
+						
+						
+						var object3 = document.createElementNS(svgns, 'use');
+						object3.setAttributeNS(xlink,'href','#Taschenlampe');
+						object3.setAttributeNS(null,'x',70);
+						object3.setAttributeNS(null,'y',230);
+						object.appendChild(object3);
+						
+						var object3a = document.createElementNS(svgns, 'image');
+						object3a.setAttributeNS(xlink,'href','T.png');
+						object3a.setAttributeNS(null,'x',60);
+						object3a.setAttributeNS(null,'y',220);
+						object3a.setAttributeNS(null,'width',20);
+						object3a.setAttributeNS(null,'height',20);
+						object.appendChild(object3a)
+						
+						var object3b = document.createElementNS(svgns, 'rect');
+						object3b.setAttributeNS(null,'x',20);
+						object3b.setAttributeNS(null,'y',250);
+						object3b.setAttributeNS(null,'rx',2);
+						object3b.setAttributeNS(null,'ry',2);
+						object3b.setAttributeNS(null,'width',160);
+						object3b.setAttributeNS(null,'height',30);
+						object3b.setAttributeNS(null,'stroke','#ffffff');
+						object3b.setAttributeNS(null,'fill','#aaaaaa');
+						object3b.setAttributeNS(null,'stroke-width','1');
+						object.appendChild(object3b);
+						
+						var object3c = document.createElementNS(svgns, 'rect');
+						object3c.setAttributeNS(null,'x',20);
+						object3c.setAttributeNS(null,'y',250);
+						object3c.setAttributeNS(null,'rx',2);
+						object3c.setAttributeNS(null,'ry',2);
+						object3c.setAttributeNS(null,'id','TB');
+						object3c.setAttributeNS(null,'width',lampeB);
+						object3c.setAttributeNS(null,'height',30);
+						object3c.setAttributeNS(null,'fill','#00ff00');
+						object.appendChild(object3c);
+						
+						var object3d = document.createElementNS(svgns, 'text');
+						object3d.setAttributeNS(null,'x',120);
+						object3d.setAttributeNS(null,'y',230);
+						object3d.setAttributeNS(null,'id','TextT');
+						object3d.setAttributeNS(null,'fill','#ffffff');
+						object3d.setAttributeNS(null,'font-size','40');
+						object3d.textContent=lampe;
+						object.appendChild(object3d);
+						
+						var object4 = document.createElementNS(svgns, 'use');
+						object4.setAttributeNS(xlink,'href','#Schluessel');
+						object4.setAttributeNS(null,'x',70);
+						object4.setAttributeNS(null,'y',430);
+						object.appendChild(object4);
+						
+						var object4a = document.createElementNS(svgns, 'text');
+						object4a.setAttributeNS(null,'x',120);
+						object4a.setAttributeNS(null,'y',425);
+						object4a.setAttributeNS(null,'id','TextK');
+						object4a.setAttributeNS(null,'fill','#ffffff');
+						object4a.setAttributeNS(null,'font-size','40');
+						object4a.textContent=schluessel;
+						object.appendChild(object4a);
+						
+						
+						document.getElementById('svg1').appendChild(object);
+						
+						PlatziereElement('#Exit',870,310,9999);
+						document.getElementById('9999').setAttribute("visibility", "hidden");
+						document.getElementById('9999').setAttribute("onclick", "pergClose()");
+						document.getElementById('9999').setAttribute("cursor", "pointer");
+						
+						last=nummer;
+					}
+					
+					
+				
+				]]>
+				</script>
+				
+				<radialGradient id="kerzenlicht" cx=".5" cy=".5" r=".5" fx=".5" fy="0.5">
+					<stop offset="0%" stop-color="#000000" stop-opacity="0" />
+					<stop offset="100%" stop-color="#000000" stop-opacity="1" /> 
+				</radialGradient>
+				<radialGradient id="taschenlampenlicht" cx=".5" cy=".5" r=".5" fx=".9"fy=".5">
+					<stop offset="0%" stop-color="#000000" stop-opacity="0" />
+					<stop offset="100%" stop-color="#000000" stop-opacity="1" /> 
+				</radialGradient>
+				
+				<g id="Bulldozer">
+					<g id="taschenlampe" transform="translate(-15,-15)" visibility="hidden">
+						<g id="998" transform="rotate(0)">
+							<path d="M -2000,-2000 L -2000,2000 L 2000,2000 L 2000,-2000 Z M -160,60 A 200 60 0 1 1 -159 60" style="fill: #000000"/>
+							<ellipse cx="-160" cy="0" rx="200" ry="60" fill="url(#taschenlampenlicht)"	/>
+						</g>
+					</g>
+					<g id="kerze" visibility="hidden">
+						<path d="M -2000,-2000 L -2000,2000 L 2000,2000 L 2000,-2000 Z M -15,105 A 120 120 0 1 1 -14.999 105" style="fill: #000000"/>
+						<ellipse cx="-15" cy="-15" rx="120" ry="120" fill="url(#kerzenlicht)"/>
+					</g>
+					<path  visibility="visible" id="dunkel" d="M -2000,-2000 L -2000,2000 L 2000,2000 L 2000,-2000 Z" style="fill: #000000"/>
+					<image x="-40" y="-40" width="50px" height="50px" xlink:href="Oma.png"</image>
+				</g>
+				<g id="Mauer">
+					<image x="-40" y="-40" width="50px" height="50px" xlink:href="Textur.jpg"</image>
+				</g>
+				<g id="Loch">
+					<rect x="-38" y="-38" width="46" height="46" style="fill: gray ;stroke:#000000;stroke-width:0"/>
+					<rect x="-35" y="-35" width="40" height="40" style="fill: black ;stroke:#000000;stroke-width:0"/>
+					<text x="-31" y="-18" fill="red">Next</text>
+					<text x="-33" y="0" fill="red">Level</text>
+				</g>
+				<g id="Streichholz">
+					<image x="-40" y="-40" width="50px" height="50px" xlink:href="streichholz.png"</image>
+				</g>
+				<g id="Taschenlampe">
+					<image x="-40" y="-40" width="50px" height="50px" xlink:href="taschenlampe.png"</image>
+				</g>
+				<g id="Schluessel">
+					<image x="-40" y="-40" width="50px" height="50px" xlink:href="schluessel.png"</image>
+				</g>
+				<g id="SchluesselLoch">
+					<image x="-40" y="-40" width="50px" height="50px" xlink:href="schluesselLoch.jpg"</image>
+				</g>
+				<g id="Minotaurus">
+					<image x="-40" y="-40" width="50px" height="50px" xlink:href="Minotaurus.png"</image>
+				</g>
+				<g id="Exit">
+					<image x="-40" y="-40" width="50px" height="50px" xlink:href="Exit.png"</image>
+				</g>
+				<g id="Ziel" transform="scale(0.625,0.625) translate(-25,-25)">
+					<rect x="-30" y="0" width="50" height="25" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<rect x="-30" y="-10" width="50" height="10" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -30,-10 L 20,-10 L 30,-20 L -20,-20 Z" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 20,-10 L 30,-20 L 30,-10 L 20,0 Z" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 20,0 L 30,-10 L 30,15 L 20,25 Z" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<text x="-25" y="15" font-family="sans-serif" font-size="8px" fill="black">GeoCache</text>
+				</g>
+				<g id="Hintergrund">
+					<rect x="-40" y="-40" width="50" height="50" style="fill:#EEEEEE;"/>
+				</g>
+				
+				<g id="Pergament" transform="translate(0,0)">
+					<rect x="-15" y="-210" width="30" height="420" style="fill: #770000 ;stroke:#000000;stroke-width:1"/>
+					<rect x="-55" y="-170" width="110" height="340" style="fill: #D7D7AB ;stroke:#000000;stroke-width:1"/>
+					<rect x="-65" y="-160" width="130" height="320" style="fill: #E9E9B7 ;stroke:#000000;stroke-width:1"/>
+					<rect id="Rolle" x="60" y="-140" width="60" height="280" style="fill: #E9E9B7 ;stroke:#000000;stroke-width:1"/>
+					<text id="p0" x="-75" y="25" font-family="sans-serif" font-size="80px" fill="black">N</text>
+					<text id="p1" x="-60" y="25" font-family="sans-serif" font-size="80px" fill="black">G</text>
+					<text id="p2" x="-45" y="25" font-family="sans-serif" font-size="80px" fill="black">°</text>
+					<text id="p3" x="-60" y="25" font-family="sans-serif" font-size="80px" fill="black">O</text>
+					<text id="p4" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">0</text>
+					<text id="p5" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">5</text>
+					<text id="p6" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">4</text>
+					<text id="p7" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">8</text>
+					<text id="p8" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">6</text>
+					<text id="p9" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">2</text>
+					<text id="p10" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">1</text>
+					<text id="p11" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">3</text>
+					<text id="p12" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">7</text>
+					<text id="p13" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">9</text>
+					<text id="p14" x="-50" y="25" font-family="sans-serif" font-size="80px" fill="black">.</text>
+					<text id="p15" x="-45" y="25" font-family="sans-serif" font-size="80px" fill="black">'</text>
+					<rect id="p16" x="-43" y="35" width="35" height="5"/>
+					<rect id="p17" x="-43" y="35" width="35" height="5"/>
+					<text id="p18" x="-55" y="25" font-family="sans-serif" font-size="80px" fill="black">T</text>
+					<rect id="p19" x="-43" y="35" width="35" height="5"/>
+					<rect id="p20" x="-43" y="35" width="35" height="5"/>
+					<rect id="p21" x="-43" y="35" width="35" height="5"/>
+					<text id="p22" x="-57" y="25" font-family="sans-serif" font-size="80px" fill="black">U</text>
+					<text id="p23" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">0</text>
+					<text id="p24" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">5</text>
+					<text id="p25" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">4</text>
+					<text id="p26" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">8</text>
+					<text id="p27" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">6</text>
+					<text id="p28" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">4</text>
+					<text id="p29" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">1</text>
+					<text id="p30" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">3</text>
+					<text id="p31" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">7</text>
+					<text id="p32" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">1</text>
+					<text id="p33" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">0</text>
+					<text id="p34" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">5</text>
+					<text id="p35" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">2</text>
+					<text id="p36" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">8</text>
+					<text id="p37" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">6</text>
+					<text id="p38" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">2</text>
+					<text id="p39" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">9</text>
+					<text id="p40" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">3</text>
+					<text id="p41" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">7</text>
+					<text id="p42" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">9</text>
+					<text id="p43" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black"></text>
+					<rect x="-75" y="-150" width="150" height="300" style="fill: #FFFFC2 ;stroke:#000000;stroke-width:1"/>
+					
+					
+				</g>
+
+			</defs>
+
+		
+		</svg>
+
+
+	</body>
+</html>

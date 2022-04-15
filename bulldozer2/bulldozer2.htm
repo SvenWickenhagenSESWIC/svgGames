@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Bulldozer2</title>
+		<meta charset="UTF-8">
+	</head>
+	<body onload="rahmen();level(1)" >
+		<svg id="svg1" width="1260" height="920" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+			<!-- Definitionen -->
+			<defs>
+			
+				<!-- Funktionen -->
+				<script type="text/javascript"><![CDATA[
+					
+					var key=0;
+					var levelnummer=0;
+					var keyFlag=true;
+					var iteration=0;
+					var torOffen=false;
+					var fahrSperre=false;
+					
+					// Reaktion bei Betätigung der Pfeiltasten
+					window.addEventListener('keydown', function (e) {
+						key = e.keyCode;
+						if(key==37) //links
+						{
+							document.getElementById('998').setAttribute("transform", "rotate(0)");
+							if(!fahrSperre && ipos-1>-1 && L[levelnummer][jpos][ipos-1]!=0 && L[levelnummer][jpos][ipos-1]!=7 && L[levelnummer][jpos][ipos-1]!=8)
+							{
+								if(K[jpos][ipos-1]>1)
+								{ // Kiste im Weg
+									if(ipos-2>-1 && L[levelnummer][jpos][ipos-2]!=0 && K[jpos][ipos-2]==0 && L[levelnummer][jpos][ipos-2]!=7 && L[levelnummer][jpos][ipos-2]!=8)
+									{ // Weg dahinter ist frei zum schieben
+										document.getElementById(K[jpos][ipos-1]).setAttribute("x", 140+(ipos-2)*80);
+										K[jpos][ipos-2]=K[jpos][ipos-1];
+										K[jpos][ipos-1]=0;
+										ipos=ipos-1;
+										document.getElementById('999').setAttribute("x", 140+ipos*80);
+									}
+								}
+								else // keine Kiste, man kann fahren
+								{
+									ipos=ipos-1;
+									document.getElementById('999').setAttribute("x", 140+ipos*80);
+								}
+							}
+						}
+						else
+						{
+							if(key==38) //hoch
+							{
+								document.getElementById('998').setAttribute("transform", "rotate(90)");
+								if(!fahrSperre && jpos-1>-1 && L[levelnummer][jpos-1][ipos]!=0 && L[levelnummer][jpos-1][ipos]!=7 && L[levelnummer][jpos-1][ipos]!=8)
+								{
+									if(K[jpos-1][ipos]>1)
+									{ // Kiste im Weg
+										if(jpos-2>-1 && L[levelnummer][jpos-2][ipos]!=0 && K[jpos-2][ipos]==0 && L[levelnummer][jpos-2][ipos]!=7 && L[levelnummer][jpos-2][ipos]!=8)
+										{ // Weg dahinter ist frei zum schieben
+											document.getElementById(K[jpos-1][ipos]).setAttribute("y", 140+(jpos-2)*80);
+											K[jpos-2][ipos]=K[jpos-1][ipos];
+											K[jpos-1][ipos]=0;
+											jpos=jpos-1;
+											document.getElementById('999').setAttribute("y", 140+jpos*80);
+										}
+									}
+									else // keine Kiste, man kann fahren
+									{
+										jpos=jpos-1;
+										document.getElementById('999').setAttribute("y", 140+jpos*80);
+									}
+								}
+								
+							}
+							else
+							{
+								if(key==39) //rechts
+								{
+									document.getElementById('998').setAttribute("transform","scale(-1,1)");
+									if(!fahrSperre && ipos+1<9 && L[levelnummer][jpos][ipos+1]!=0 && L[levelnummer][jpos][ipos+1]!=7 && L[levelnummer][jpos][ipos+1]!=8)
+									{
+										if(K[jpos][ipos+1]>1)
+										{ // Kiste im Weg
+											if(ipos+2<9 && L[levelnummer][jpos][ipos+2]!=0 && K[jpos][ipos+2]==0 && L[levelnummer][jpos][ipos+2]!=7 && L[levelnummer][jpos][ipos+2]!=8)
+											{ // Weg dahinter ist frei zum schieben
+												document.getElementById(K[jpos][ipos+1]).setAttribute("x", 140+(ipos+2)*80);
+												K[jpos][ipos+2]=K[jpos][ipos+1];
+												K[jpos][ipos+1]=0;
+												ipos=ipos+1;
+												document.getElementById('999').setAttribute("x", 140+ipos*80);
+											}
+										}
+										else // keine Kiste, man kann fahren
+										{
+											ipos=ipos+1;
+											document.getElementById('999').setAttribute("x", 140+ipos*80);
+										}
+									}
+									/*
+									if(ipos+1<9 && L[levelnummer][jpos][ipos+1]!=0 && L[levelnummer][jpos][ipos+1]!=7) // leeres Feld
+									{
+										ipos=ipos+1;
+										//document.getElementById('999').setAttribute("transform", "translate("+(40+ipos*80)+","+(40+jpos*80)+")");
+										document.getElementById('999').setAttribute("x", 140+ipos*80);
+									}*/
+								}
+								else
+								{
+									if(key==40) //runter
+									{
+										document.getElementById('998').setAttribute("transform", "rotate(-90)");
+										if(!fahrSperre && jpos+1<9 && L[levelnummer][jpos+1][ipos]!=0 && L[levelnummer][jpos+1][ipos]!=7 && L[levelnummer][jpos+1][ipos]!=8)
+										{
+											if(K[jpos+1][ipos]>1)
+											{ // Kiste im Weg
+												if(jpos+2<9 && L[levelnummer][jpos+2][ipos]!=0 && K[jpos+2][ipos]==0 && L[levelnummer][jpos+2][ipos]!=7 && L[levelnummer][jpos+2][ipos]!=8)
+												{ // Weg dahinter ist frei zum schieben
+													document.getElementById(K[jpos+1][ipos]).setAttribute("y", 140+(jpos+2)*80);
+													K[jpos+2][ipos]=K[jpos+1][ipos];
+													K[jpos+1][ipos]=0;
+													jpos=jpos+1;
+													document.getElementById('999').setAttribute("y", 140+jpos*80);
+												}
+											}
+											else // keine Kiste, man kann fahren
+											{
+												jpos=jpos+1;
+												document.getElementById('999').setAttribute("y", 140+jpos*80);
+											}
+										}
+									}
+								}
+							}
+						}
+						if(!fahrSperre)
+						{
+							buttonMark();
+							torBed();
+							siegBed();
+							aufLoch();
+						}
+					})
+					window.addEventListener('keyup', function (e) {
+						key = false;
+						keyFlag=true;
+					})
+					
+					// welches Symbol
+					var P = new Array();
+									//  0  1  2  3  4  5  6  7  8  9 10
+					P[ 1] = new Array( 43,43,43, 1,43,22,43,18,43,43,43 );
+					P[ 2] = new Array(  0,20,23, 2,16,17,14,19,25,21,15 );
+					P[ 3] = new Array(  3,16,17, 2,11,42,14,19,20,21,15 );
+					P[ 4] = new Array(  3,20,32, 2,16,17,14,19,10,21,15 );
+					P[ 5] = new Array(  0,24,17, 2,19,20,14,29,16,31,15 );
+					P[ 6] = new Array(  0,16,17, 2,24,32,14,19,20,21,15 );
+					P[ 7] = new Array(  3,10,17, 2,19,20,14,38,16,28,15 );
+					
+					var svgns = "http://www.w3.org/2000/svg";
+					var xlink = 'http://www.w3.org/1999/xlink';
+					var i=0;var j=0;
+					var last=0;
+					var ipos=0; var jpos=0;
+					
+					function abbrechen()
+					{
+						return false;
+					}
+					
+					function buttonMark()
+					{
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[levelnummer][j][i]==2)
+								{
+									if(K[j][i]>1 || (ipos==i && jpos==j))
+										document.getElementById(levelnummer+""+i+""+j).setAttribute("fill", "yellow");
+									else
+										document.getElementById(levelnummer+""+i+""+j).setAttribute("fill", "red");
+								}
+							}
+						}
+					}
+					
+					function siegBed()
+					{
+						if(L[levelnummer][jpos][ipos]==5)
+						{
+							iteration=0;
+							fahrSperre=true;
+							var object = document.createElementNS(svgns, 'use');
+							object.setAttributeNS(xlink,'href','#Pergament');
+							object.setAttributeNS(null,'id','Perg');
+							object.setAttributeNS(null,'x',0);
+							object.setAttributeNS(null,'y',0);
+							object.setAttributeNS(null,'transform',"translate("+ipos+","+jpos+")");
+							document.getElementById('svg1').appendChild(object);
+							pergLaden();
+						}
+					}
+					
+					function pergLaden()
+					{
+						if(iteration<20)
+						{
+							iteration+=1;
+							document.getElementById('Perg').setAttribute("transform", "translate("+((430-(140+ipos*80))/20*iteration+(140+ipos*80))+","+((460-(140+jpos*80))/20*iteration+(140+jpos*80))+") scale("+(iteration/20)+","+(iteration/20)+")");
+							window.setTimeout(pergLaden, 50);
+						}
+						else
+						{
+							document.getElementById('Perg').setAttribute("transform", "translate(430,460) scale(1)");
+							iteration=0;
+							window.setTimeout(pergRollen, 200);
+						}
+					}
+					
+					function pergRollen()
+					{
+						if(iteration<54)
+						{
+							iteration+=1;
+							document.getElementById('Perg').setAttribute("transform", "translate("+(430-iteration*6)+",460) ");
+							document.getElementById('Rolle').setAttribute("width", ""+(60+12*iteration));
+							for(i=0; i<11; i++)
+							{
+								if(4*i<iteration)
+									document.getElementById("p"+P[levelnummer][10-i]).setAttribute("transform", "translate("+(iteration*12-i*45)+",0) ");
+							}
+							window.setTimeout(pergRollen, 30);
+							
+						}
+						else
+						{
+							
+						}
+					}
+					
+					function aufLoch()
+					{
+						if(L[levelnummer][jpos][ipos]==3)
+						{
+							iteration=0;
+							fahrSperre=true;
+							fallen('997');
+						}
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(K[j][i]>0 && L[levelnummer][j][i]==3)
+								{
+									iteration=0;
+									fahrSperre=true;
+									fallen2(i,j);
+								}
+							}
+						}
+					}
+					function fallen(id)
+					{
+						if(iteration<10)
+						{
+							iteration+=1;
+							document.getElementById(id).setAttribute("transform", "scale("+(1/iteration)+","+(1/iteration)+")");
+							window.setTimeout(fallen, 100, id);
+						}
+						else
+						{
+							level(levelnummer);
+							document.getElementById(id).setAttribute("transform", "scale(1,1)");
+							fahrSperre=false;
+						}
+					}
+					function fallen2(k,l)
+					{
+						if(iteration<10)
+						{
+							iteration+=1;
+							document.getElementById(K[l][k]).setAttribute("transform", "scale("+(1/iteration)+","+(1/iteration)+")");
+							document.getElementById(K[l][k]).setAttribute("x", (140+k*80)*iteration);
+							document.getElementById(K[l][k]).setAttribute("y", (140+l*80)*iteration);
+							window.setTimeout(fallen2, 100, k,l);
+						}
+						else
+						{
+							level(levelnummer);
+							fahrSperre=false;
+						}
+					}
+					
+					function torBed()
+					{
+						var torFlag=true;
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[levelnummer][j][i]==2)
+								{
+									if(K[j][i]==0 && (ipos!=i || jpos!=j))
+										torFlag=false;
+								}
+							}
+						}
+						if(torFlag && !torOffen)
+						{
+							torOffen=true;
+							torOeffnen();
+							for(i=0; i<9; i++)
+							{
+								for(j=0; j<9; j++)
+								{
+									if(L[levelnummer][j][i]==2)
+									{
+										PlatziereElement('#Sperre',140+i*80,140+j*80,"Sp"+i+""+j);
+									}								
+								}
+							}
+							for(i=0; i<9; i++)
+							{
+								for(j=0; j<9; j++)
+								{
+									if(L[levelnummer][j][i]==2 && ipos==i && jpos==j)
+									{
+										fahrSperre=true;
+									}								
+								}
+							}
+						}
+					}
+					
+					function torOeffnen()
+					{
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[levelnummer][j][i]==7)
+								{
+									iteration=0;
+									Oeffne(i,j);
+								}
+							}
+						}
+					}
+					
+					function Oeffne(k,l)
+					{
+						if(iteration<10)
+						{
+							iteration+=1;
+							document.getElementById(levelnummer+""+k+""+l).setAttribute("y", 140+l*80-T[levelnummer]*8*iteration );
+							window.setTimeout(Oeffne, 100, k, l);
+						}
+						else
+							if(!fahrSperre)
+								L[levelnummer][l][k]=1;
+					}
+					
+					
+					
+					//	Definition der Level
+					var L = new Array();
+					L[ 1] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 1][ 0] = new Array(  0,1,0,0,0,0,0,0,0 );
+					L[ 1][ 1] = new Array(  0,1,4,1,1,0,0,0,0 );
+					L[ 1][ 2] = new Array(  0,1,0,4,1,4,1,0,0 );
+					L[ 1][ 3] = new Array(  0,4,1,1,0,4,4,1,0 );
+					L[ 1][ 4] = new Array(  1,4,1,0,1,1,4,0,0 );
+					L[ 1][ 5] = new Array(  0,1,4,0,0,4,1,0,0 );
+					L[ 1][ 6] = new Array(  1,0,1,0,0,1,4,1,0 );
+					L[ 1][ 7] = new Array(  4,1,4,1,0,1,4,1,5 );
+					L[ 1][ 8] = new Array(  6,0,1,0,0,0,1,0,0 );
+					
+					L[ 2] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 2][ 0] = new Array(  2,3,2,4,1,1,10,1,1 );
+					L[ 2][ 1] = new Array(  4,2,3,4,1,0,0,0,1 );
+					L[ 2][ 2] = new Array(  1,1,1,1,1,4,3,1,1 );
+					L[ 2][ 3] = new Array(  1,1,0,0,4,0,0,1,4 );
+					L[ 2][ 4] = new Array(  1,4,2,0,2,1,1,1,3 );
+					L[ 2][ 5] = new Array(  2,4,1,0,1,4,2,4,0 );
+					L[ 2][ 6] = new Array(  2,1,4,1,1,3,0,3,0 );
+					L[ 2][ 7] = new Array(  4,4,0,0,1,0,1,7,1 );
+					L[ 2][ 8] = new Array(  6,2,4,1,1,1,1,8,5 );
+					
+					L[ 3] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 3][ 0] = new Array(  2,2,6,4,1,1,1,1,2 );
+					L[ 3][ 1] = new Array(  4,0,4,0,1,2,2,4,1 );
+					L[ 3][ 2] = new Array(  1,1,1,0,0,4,4,0,1 );
+					L[ 3][ 3] = new Array(  1,4,2,1,1,1,2,1,1 );
+					L[ 3][ 4] = new Array(  1,0,0,4,0,4,4,0,4 );
+					L[ 3][ 5] = new Array(  1,0,0,1,1,2,1,1,1 );
+					L[ 3][ 6] = new Array(  1,0,0,1,4,4,1,0,0 );
+					L[ 3][ 7] = new Array(  2,1,4,2,4,1,1,8,0 );
+					L[ 3][ 8] = new Array(  0,1,1,1,2,0,1,7,5 );
+					
+					L[ 4] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 4][ 0] = new Array(  0,0,0,1,1,4,1,1,0 );
+					L[ 4][ 1] = new Array(  1,2,1,4,1,0,1,4,2 );
+					L[ 4][ 2] = new Array(  4,1,0,1,0,0,0,1,1 );
+					L[ 4][ 3] = new Array(  2,0,0,1,4,2,0,0,4 );
+					L[ 4][ 4] = new Array(  1,1,1,1,0,1,1,1,1 );
+					L[ 4][ 5] = new Array(  1,4,1,0,1,4,2,0,1 );
+					L[ 4][ 6] = new Array(  1,4,4,0,0,2,4,1,1 );
+					L[ 4][ 7] = new Array(  0,0,1,1,0,4,8,5,0 );
+					L[ 4][ 8] = new Array(  2,0,2,4,1,6,7,1,0 );
+					
+					L[ 5] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 5][ 0] = new Array(  6,1,2,2,2,2,2,2,2 );
+					L[ 5][ 1] = new Array(  2,0,4,0,4,0,4,0,4 );
+					L[ 5][ 2] = new Array(  2,4,1,1,1,1,1,1,1 );
+					L[ 5][ 3] = new Array(  2,0,1,0,4,0,4,0,4 );
+					L[ 5][ 4] = new Array(  2,4,1,1,1,1,1,1,2 );
+					L[ 5][ 5] = new Array(  2,4,4,4,0,4,1,0,1 );
+					L[ 5][ 6] = new Array(  2,4,1,1,1,1,1,1,1 );
+					L[ 5][ 7] = new Array(  2,0,4,0,4,0,4,8,0 );
+					L[ 5][ 8] = new Array(  2,1,1,1,2,1,1,7,5 );
+					
+					L[ 6] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 6][ 0] = new Array(  6,0,1,0,1,0,1,4,1 );
+					L[ 6][ 1] = new Array(  4,1,4,1,4,1,0,1,0 );
+					L[ 6][ 2] = new Array(  1,4,1,4,1,4,1,4,1 );
+					L[ 6][ 3] = new Array(  0,1,0,1,0,1,0,1,0 );
+					L[ 6][ 4] = new Array(  1,0,1,0,1,4,1,4,1 );
+					L[ 6][ 5] = new Array(  0,1,0,1,4,1,0,1,0 );
+					L[ 6][ 6] = new Array(  1,0,1,4,1,1,1,0,1 );
+					L[ 6][ 7] = new Array(  0,1,0,1,4,1,4,4,1 );
+					L[ 6][ 8] = new Array(  1,4,1,4,1,4,1,1,5 );
+					
+					L[ 7] = new Array(); // 0 1 2 3 4 5 6 7 8  
+					L[ 7][ 0] = new Array(  5,1,1,1,1,1,1,1,5 );
+					L[ 7][ 1] = new Array(  0,0,0,0,1,0,1,0,0 );
+					L[ 7][ 2] = new Array(  1,4,1,0,1,0,4,1,1 );
+					L[ 7][ 3] = new Array(  1,1,1,4,4,4,1,1,4 );
+					L[ 7][ 4] = new Array(  1,4,0,0,6,0,0,0,1 );
+					L[ 7][ 5] = new Array(  1,1,0,0,4,0,1,1,1 );
+					L[ 7][ 6] = new Array(  4,1,1,0,1,0,4,0,1 );
+					L[ 7][ 7] = new Array(  1,0,4,0,1,0,1,1,0 );
+					L[ 7][ 8] = new Array(  5,1,1,1,1,1,1,1,5 );
+					
+					//				  1  2  3  4  5  6  7
+					T = new Array( 0,-1,-1, 1, 1,-1, 1,-1 );
+					
+					//	Position der Kisten
+					var K = new Array();// 0 1 2 3 4 5 6 7 8  
+					K[ 0] = new Array(     0,0,0,0,0,0,0,0,0 );
+					K[ 1] = new Array(     0,0,0,0,0,0,0,0,0 );
+					K[ 2] = new Array(     0,0,0,0,0,0,0,0,0 );
+					K[ 3] = new Array(     0,0,0,0,0,0,0,0,0 );
+					K[ 4] = new Array(     0,0,0,0,0,0,0,0,0 );
+					K[ 5] = new Array(     0,0,0,0,0,0,0,0,0 );
+					K[ 6] = new Array(     0,0,0,0,0,0,0,0,0 );
+					K[ 7] = new Array(     0,0,0,0,0,0,0,0,0 );
+					K[ 8] = new Array(     0,0,0,0,0,0,0,0,0 );
+					
+				
+					function PlatziereElement(element,x,y,id)
+					{
+						var object = document.createElementNS(svgns, 'use');
+						object.setAttributeNS(xlink,'href',element);
+						object.setAttributeNS(null,'id',id);
+						object.setAttributeNS(null,'x',x);
+						object.setAttributeNS(null,'y',y);
+						object.setAttributeNS(null,'transform',"rotate(0)");
+						document.getElementById('svg1').appendChild(object);
+					}
+					function EraseElement(id)
+					{
+						try
+						{
+							document.getElementById(id).remove();
+						}
+						catch(err)
+						{
+							return;
+						}
+					}
+					
+					function rahmen()
+					{
+						for(i=0; i<11; i++)
+						{
+							PlatziereElement('#Mauer',60+i*80,60,900+i);
+							PlatziereElement('#Mauer',60+i*80,860,920+i);
+						}
+						for(i=1; i<10; i++)
+						{
+							PlatziereElement('#Mauer',60,60+i*80,940+i);
+							PlatziereElement('#Mauer',860,60+i*80,960+i);
+						}
+						
+						for(i=1; i<10; i++)
+						{
+							for(j=1; j<10; j++)
+							{
+								PlatziereElement('#Hintergrund',60+i*80,60+j*80);
+							}
+						}
+					}
+					
+					function level(nummer)
+					{
+						levelnummer=nummer;
+						if(last>0)
+						{
+							document.getElementById('Button'+last).setAttribute("style", "fill: #AAAAAA;stroke:#000000;stroke-width:1");
+							for(i=0; i<9; i++)
+							{
+								for(j=0; j<9; j++)
+								{
+									EraseElement(last+""+i+""+j);
+									EraseElement("Sp"+i+""+j);
+									K[j][i]=0;
+								}
+							}
+							EraseElement('Perg');
+							torOffen=false;
+							fahrSperre=false;
+							EraseElement('999');
+							
+							//document.getElementById('Perg').setAttribute("transform", "translate("+(430-iteration*6)+",460) ");
+							document.getElementById('Rolle').setAttribute("width", "60");
+							for(i=0; i<11; i++)
+							{
+								document.getElementById("p"+P[last][i]).setAttribute("transform", "translate(0,0) ");
+							}
+						}
+						document.getElementById('Button'+nummer).setAttribute("style", "fill: #00FF00;stroke:#000000;stroke-width:1");
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[nummer][j][i]==0)
+									PlatziereElement('#Mauer',140+i*80,140+j*80,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[nummer][j][i]==1)
+									PlatziereElement('#Hintergrund',140+i*80,140+j*80,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[nummer][j][i]==2)
+								{
+									PlatziereElement('#Knopf',140+i*80,140+j*80,nummer+""+i+""+j);
+									document.getElementById(nummer+""+i+""+j).setAttribute("fill", "red");
+								}								
+							}
+						}
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[nummer][j][i]==3)
+									PlatziereElement('#Loch',140+i*80,140+j*80,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[nummer][j][i]==4)
+								{
+									PlatziereElement('#Kiste',140+i*80,140+j*80,nummer+""+i+""+j);
+									K[j][i]=nummer+""+i+""+j;
+								}
+							}
+						}
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[nummer][j][i]==5)
+									PlatziereElement('#Ziel',140+i*80,140+j*80,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[nummer][j][i]==6)
+								{
+									ipos=i;
+									jpos=j;
+									PlatziereElement('#Bulldozer',140+ipos*80,140+jpos*80,999);
+									document.getElementById('998').setAttribute("transform", "rotate(0)");
+								}
+							}
+						}
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[nummer][j][i]==7)
+									PlatziereElement('#Tor',140+i*80,140+j*80,nummer+""+i+""+j);
+							}
+						}
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<9; j++)
+							{
+								if(L[nummer][j][i]==8)
+									PlatziereElement('#TorLoch',140+i*80,140+j*80,nummer+""+i+""+j);
+							}
+						}
+						last=nummer;
+					}
+					
+				
+				]]>
+				</script>
+				
+				<g id="Bulldozer">
+					<g id="998" transform="rotate(0)">
+						<g id="997" transform="scale(1,1)">
+							<path d="M -38,35 L -20,35 L -20,-10 L -26,-8 L -29,20 z" style="fill: #814147 ;stroke:#000000;stroke-width:1"/>
+							<path d="M -15,15 L 38,15 L 38,-10 L 33,-10 L 33,-32 L 14,-32 L 9,-10 L -5,-10 Z M 12,-10 L 16,-29 L 28,-29 L 28,-10 Z" style="fill: #FFE144 ;stroke:#000000;stroke-width:1"/>
+							<path d="M -20,20 L 0,10 L -4,2 L -20,11 Z" style="fill: #FFE144 ;stroke:#000000;stroke-width:1"/>
+							<rect x="-5" y="15" width="33" height="20" style="fill: #666600 ;stroke:#000000;stroke-width:1"/>
+							<circle cx="28" cy="25" r="10" style="fill: #AAAAAA ;stroke:#000000;stroke-width:1"/>
+							<circle cx="-5" cy="25" r="10" style="fill: #AAAAAA ;stroke:#000000;stroke-width:1"/>
+							<circle cx="28" cy="25" r="5" style="fill: #888888 ;stroke:#000000;stroke-width:3"/>
+							<circle cx="-5" cy="25" r="5" style="fill: #888888 ;stroke:#000000;stroke-width:3"/>
+							<path d="M 1,-10 L 3,-10 L 3,-15 L 4,-15 L 4,-30 L 3,-30 L 3,-35 L 1,-32 L 1,-30 L 0,-30 L 0,-15 L 1,-15 Z" style="fill: #888888 ;stroke:#000000;stroke-width:1"/>
+						</g>
+					</g>
+				</g>
+				<g id="Mauer">
+					<rect x="-35" y="-35" width="70" height="70" style="fill: #FFFFB4 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -40,-40 L 40,-40 L 35,-35 L -35,-35 z" style="fill: #B47744 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -40,-40 L -40,40 L -35,35 L -35,-35 z" style="fill: #B47744 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 40,40 L 40,-40 L 35,-35 L 35,35 z" style="fill: #E49955 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 40,40 L -40,40 L -35,35 L 35,35 z" style="fill: #E49955 ;stroke:#000000;stroke-width:1"/>				
+				</g>
+				<g id="Kiste">
+					<rect x="-35" y="-35" width="70" height="70" style="fill: #FFFFB4 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -40,-40 L 40,-40 L 35,-35 L -35,-35 z" style="fill: #B47744 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -40,-40 L -40,40 L -35,35 L -35,-35 z" style="fill: #B47744 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 40,40 L 40,-40 L 35,-35 L 35,35 z" style="fill: #E49955 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 40,40 L -40,40 L -35,35 L 35,35 z" style="fill: #E49955 ;stroke:#000000;stroke-width:1"/>				
+				</g>
+				<g id="Loch">
+					<rect x="-38" y="-38" width="76" height="76" style="fill: gray ;stroke:#000000;stroke-width:0"/>
+					<rect x="-35" y="-35" width="70" height="70" style="fill: black ;stroke:#000000;stroke-width:0"/>
+				</g>
+				<g id="Knopf">
+					<circle cx="0" cy="0" r="38" style="stroke:#000000;stroke-width:2"/>
+				</g>
+				<g id="Sperre">
+					<rect x="-38" y="-38" width="19" height="78" style="fill: transparent ;stroke:#000000;stroke-width:4"/>
+					<rect x="-19" y="-38" width="19" height="78" style="fill: transparent ;stroke:#000000;stroke-width:4"/>
+					<rect x="0" y="-38" width="19" height="78" style="fill: transparent ;stroke:#000000;stroke-width:4"/>
+					<rect x="19" y="-38" width="19" height="78" style="fill: transparent ;stroke:#000000;stroke-width:4"/>
+				</g>
+				<g id="Tor">
+					<rect x="-10" y="-40" width="20" height="80" style="fill: #FFFFB4 ;stroke:#000000;stroke-width:2"/>
+				</g>
+				<g id="TorLoch">
+					<rect x="-35" y="-35" width="20" height="70" style="fill: #FFFFB4 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -40,-40 L -10,-40 L -15,-35 L -35,-35 z" style="fill: #B47744 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -40,-40 L -40,40 L -35,35 L -35,-35 z" style="fill: #B47744 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -10,40 L -10,-40 L -15,-35 L -15,35 z" style="fill: #E49955 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -10,40 L -40,40 L -35,35 L -15,35 z" style="fill: #E49955 ;stroke:#000000;stroke-width:1"/>	
+					<rect x="15" y="-35" width="20" height="70" style="fill: #FFFFB4 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 10,-40 L 40,-40 L 35,-35 L 15,-35 z" style="fill: #B47744 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 10,-40 L 10,40 L 15,35 L 15,-35 z" style="fill: #B47744 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 40,40 L 40,-40 L 35,-35 L 35,35 z" style="fill: #E49955 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 40,40 L 10,40 L 15,35 L 35,35 z" style="fill: #E49955 ;stroke:#000000;stroke-width:1"/>	
+				</g>
+				<g id="Ziel">
+					<rect x="-30" y="0" width="50" height="25" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<rect x="-30" y="-10" width="50" height="10" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<path d="M -30,-10 L 20,-10 L 30,-20 L -20,-20 Z" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 20,-10 L 30,-20 L 30,-10 L 20,0 Z" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<path d="M 20,0 L 30,-10 L 30,15 L 20,25 Z" style="fill: #FDD017 ;stroke:#000000;stroke-width:1"/>
+					<text x="-25" y="15" font-family="sans-serif" font-size="8px" fill="black">GeoCache</text>
+				</g>
+				<g id="Hintergrund">
+					<rect x="-40" y="-40" width="80" height="80" style="fill:#EEEEEE;"/>
+				</g>
+				
+				<g id="Pergament" transform="translate(0,0)">
+					<rect x="-15" y="-210" width="30" height="420" style="fill: #770000 ;stroke:#000000;stroke-width:1"/>
+					<rect x="-55" y="-170" width="110" height="340" style="fill: #D7D7AB ;stroke:#000000;stroke-width:1"/>
+					<rect x="-65" y="-160" width="130" height="320" style="fill: #E9E9B7 ;stroke:#000000;stroke-width:1"/>
+					<rect id="Rolle" x="60" y="-140" width="60" height="280" style="fill: #E9E9B7 ;stroke:#000000;stroke-width:1"/>
+					<text id="p0" x="-75" y="25" font-family="sans-serif" font-size="80px" fill="black">N</text>
+					<text id="p1" x="-60" y="25" font-family="sans-serif" font-size="80px" fill="black">G</text>
+					<text id="p2" x="-45" y="25" font-family="sans-serif" font-size="80px" fill="black">°</text>
+					<text id="p3" x="-60" y="25" font-family="sans-serif" font-size="80px" fill="black">O</text>
+					<text id="p4" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">0</text>
+					<text id="p5" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">5</text>
+					<text id="p6" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">4</text>
+					<text id="p7" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">8</text>
+					<text id="p8" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">6</text>
+					<text id="p9" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">2</text>
+					<text id="p10" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">1</text>
+					<text id="p11" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">3</text>
+					<text id="p12" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">7</text>
+					<text id="p13" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">9</text>
+					<text id="p14" x="-50" y="25" font-family="sans-serif" font-size="80px" fill="black">.</text>
+					<text id="p15" x="-45" y="25" font-family="sans-serif" font-size="80px" fill="black">'</text>
+					<rect id="p16" x="-43" y="35" width="35" height="5"/>
+					<rect id="p17" x="-43" y="35" width="35" height="5"/>
+					<text id="p18" x="-55" y="25" font-family="sans-serif" font-size="80px" fill="black">T</text>
+					<rect id="p19" x="-43" y="35" width="35" height="5"/>
+					<rect id="p20" x="-43" y="35" width="35" height="5"/>
+					<rect id="p21" x="-43" y="35" width="35" height="5"/>
+					<text id="p22" x="-57" y="25" font-family="sans-serif" font-size="80px" fill="black">U</text>
+					<text id="p23" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">0</text>
+					<text id="p24" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">5</text>
+					<text id="p25" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">4</text>
+					<text id="p26" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">8</text>
+					<text id="p27" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">6</text>
+					<text id="p28" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">4</text>
+					<text id="p29" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">1</text>
+					<text id="p30" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">3</text>
+					<text id="p31" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">7</text>
+					<text id="p32" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">1</text>
+					<text id="p33" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">0</text>
+					<text id="p34" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">5</text>
+					<text id="p35" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">2</text>
+					<text id="p36" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">8</text>
+					<text id="p37" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">6</text>
+					<text id="p38" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">2</text>
+					<text id="p39" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">9</text>
+					<text id="p40" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">3</text>
+					<text id="p41" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">7</text>
+					<text id="p42" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black">9</text>
+					<text id="p43" x="-43" y="25" font-family="sans-serif" font-size="80px" fill="black"></text>
+					<rect x="-75" y="-150" width="150" height="300" style="fill: #FFFFC2 ;stroke:#000000;stroke-width:1"/>
+					
+				</g>
+
+			</defs>
+
+			
+		
+			<g transform="translate(940,20)" onclick="level(1)" >
+				<rect id="Button1" x="0" y="0" width="200" height="100" style="fill: #AAAAAA ;stroke:#000000;stroke-width:1"/>
+				<text x="15" y="75" font-family="sans-serif" font-size="50px" fill="black">Level 1</text>
+			</g>
+			<g transform="translate(940,150)" onclick="level(2)" >
+				<rect id="Button2" x="0" y="0" width="200" height="100" style="fill: #AAAAAA ;stroke:#000000;stroke-width:1"/>
+				<text x="15" y="75" font-family="sans-serif" font-size="50px" fill="black">Level 2</text>
+			</g>
+			<g transform="translate(940,280)" onclick="level(3)" >
+				<rect id="Button3" x="0" y="0" width="200" height="100" style="fill: #AAAAAA ;stroke:#000000;stroke-width:1"/>
+				<text x="15" y="75" font-family="sans-serif" font-size="50px" fill="black">Level 3</text>
+			</g>
+			<g transform="translate(940,410)" onclick="level(4)" >
+				<rect id="Button4" x="0" y="0" width="200" height="100" style="fill: #AAAAAA ;stroke:#000000;stroke-width:1"/>
+				<text x="15" y="75" font-family="sans-serif" font-size="50px" fill="black">Level 4</text>
+			</g>
+			<g transform="translate(940,540)" onclick="level(5)" >
+				<rect id="Button5" x="0" y="0" width="200" height="100" style="fill: #AAAAAA ;stroke:#000000;stroke-width:1"/>
+				<text x="15" y="75" font-family="sans-serif" font-size="50px" fill="black">Level 5</text>
+			</g>
+			<g transform="translate(940,670)" onclick="level(6)" >
+				<rect id="Button6" x="0" y="0" width="200" height="100" style="fill: #AAAAAA ;stroke:#000000;stroke-width:1"/>
+				<text x="15" y="75" font-family="sans-serif" font-size="50px" fill="black">Level 6</text>
+			</g>
+			<g transform="translate(940,800)" onclick="level(7)">
+				<rect id="Button7" x="0" y="0" width="200" height="100" style="fill: #AAAAAA ;stroke:#000000;stroke-width:1"/>
+				<text x="15" y="75" font-family="sans-serif" font-size="50px" fill="black">Level 7</text>
+			</g>
+			
+			
+		</svg>
+
+
+	</body>
+</html>

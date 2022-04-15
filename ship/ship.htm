@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Schiff fahren</title>
+		<meta charset="UTF-8">
+	</head>
+	<body onload="" >
+		<svg id="svg1" width="900" height="500" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+			<!-- Definitionen -->
+			<defs>
+			
+				<!-- Funktionen -->
+				<script type="text/javascript"><![CDATA[
+					// schwierigkeit(1);wasser();fliessen();schiff();hindernis();schiffV();schifffahren();gold();score();
+					var svgns = "http://www.w3.org/2000/svg";
+					var xlink = 'http://www.w3.org/1999/xlink';
+					var position = 0;
+					var positionH = 0;
+					var geschwindigkeit = 5; //normal 5
+					var yGeschwindigkeit = 0;
+					var yPos=0;
+					var key=0;
+					var anzahlH=9;
+					var iteration=0;
+					var aktuell=0;
+					var spiel=true;
+					var konto=0;
+					var starthindernis=1;
+					var object2 = document.createElementNS(svgns, 'text');
+					
+					xPosH = 	new Array( 	600,900,1200,1500,1800,2100,2400,2700,3000 );
+					yPosH = 	new Array( 	0, 300, 150, 200, 100, 250, 100, 250,   0 );
+					heightH =	new Array( 	0, 84,145,154,154,154,145,145,500 ); 
+					widthH =	new Array( 	0,200,189,146,146,146,189,189,1000 ); 
+					heightsH =	new Array( 	0, 84,145,154,154,154,145,145,500 ); 
+					widthsH =	new Array( 	0,200,189,146,146,146,189,189,1000 ); 
+					elementTyp = new Array( 0,	1,  2,  3,  4,  5,  6,  7,  8 );
+					goldwert = new Array(   0, -1, -1, -1,  2,  5,  5, 10, -1 );
+					goldwerte = new Array(   0, -1, -1, -1,  2,  5,  5, 10, -1 );
+					resultat = new Array(0,1,0,0,0,1,0,0,1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,1,0,1,0,0,1,0,0,1,0,1,0,0,1,0,1,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,1,0,1,0,1,0,1,0,0,1,0,0,0,1,0,1,0,1,1,0,1,1,1,0,1,0,1,0,1,1,0,1,1,1,0,1,0,1,0,0,1,0,0,0,1,0,1,0,0,0,0,1,0,1,0,1,0,1,0,0,0,0,1,0,1,0,1,0,1,0,0,1,0,0,0,0,1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,0,0,1,0,1,0,0,1,0);
+					
+					function Zufallszahl(Min,Max)
+					{
+						var zahl = Min + parseInt( Math.random() * ( (Max + 1 ) - Min ));
+						return zahl;
+					}
+					
+					function PlatziereElement(element,id,x,y,w,h,typ,vis)
+					{
+						var object = document.createElementNS(svgns, 'image');
+						object.setAttributeNS(xlink,'xlink:href',''+element+'.'+typ);
+						object.setAttributeNS(null,'x',x);
+						object.setAttributeNS(null,'y',y);
+						object.setAttributeNS(null,'id',id);
+						object.setAttributeNS(null,'width',w);
+						object.setAttributeNS(null,'height',h);
+						object.setAttributeNS(null,'visibility',vis);
+						document.getElementById('svg1').appendChild(object);
+					}
+					
+				
+					function wasser()
+					{
+						for(i=0; i<8; i++)
+						{
+							PlatziereElement('Wasser','w'+i,i*150,0,150,500,'png','visible');
+						}
+					}
+					
+					function fliessen()
+					{
+						position=position+geschwindigkeit;
+						if(position>150)
+							position=position-150;
+						for(i=0; i<8; i++)
+						{
+							document.getElementById('w'+i).setAttribute("x", i*150-position);
+						}
+						if(spiel)
+							window.setTimeout(fliessen, 16);
+					}
+					
+					function schiff()
+					{
+						PlatziereElement('Spieler','sH',20,yPos,204,188,'png','visible');
+					}
+					function schiffV()
+					{
+						PlatziereElement('Spieler','sV',20,yPos,204,188,'png','visible');
+					}
+					
+					
+					function schifffahren()
+					{
+						// Schiff darf nicht unten rausfahren
+						if(yPos>300)
+						{
+							yPos=300;
+							yGeschwindigkeit=0;
+						}
+						
+						// Schiff darf nicht oben rausfahren
+						if(yPos < -100)
+						{
+							yPos=-100;
+							yGeschwindigkeit=0;
+						}
+						
+						// Schiff vor oder hinter einem Hindernis
+						for(i=starthindernis; i<anzahlH; i++)
+						{
+							
+							if(positionH+xPosH[i]>-widthH[i]-50 && positionH+xPosH[i] < widthH[i]+50)
+							{
+								//starthindernis=i+1;
+								//console.log("start");
+								if(yPos+185 > yPosH[i]+heightH[i])
+								{
+									//document.getElementById('sH').setAttribute("visibility", "hidden");
+									document.getElementById('sV').setAttribute("visibility", "visible");
+								}
+								if(yPos+185 < yPosH[i]+heightH[i])
+								{
+									//document.getElementById('sH').setAttribute("visibility", "visible");
+									document.getElementById('sV').setAttribute("visibility", "hidden");
+								}
+							}
+							if(positionH+xPosH[i]>-widthH[i]+10 && positionH+xPosH[i] < widthH[i]-10)
+							{
+								if(yPos+185 < yPosH[i]+heightH[i]+20 && yPos+185 > yPosH[i]+heightH[i]-20)
+								{
+									if(goldwert[i]>0)
+									{
+										if(iteration==0)
+										{
+											konto=konto+goldwert[i];
+											object2.textContent=konto;
+											goldwert[i]=0;
+											beute();
+										}
+									}
+									if(goldwert[i]<0)
+										gameover();
+								}
+								
+							}
+						}
+						if(positionH+xPosH[anzahlH-1]<200)
+							document.getElementById('sV').setAttribute("visibility", "visible");
+						if(positionH+xPosH[anzahlH-1]<20)
+							finale();
+						
+						// Y-Bewegung des Schiffes
+						yPos=yPos+yGeschwindigkeit;
+						document.getElementById('sH').setAttribute("y", yPos);
+						document.getElementById('sV').setAttribute("y", yPos);
+						
+						// X-Bewegung der Hindernisse
+						positionH=positionH-geschwindigkeit;
+						for(i=1; i<anzahlH; i++)
+						{
+							document.getElementById('h'+i).setAttribute("x", positionH+xPosH[i]);
+						}
+						
+						// nächster Schritt
+						if(spiel)
+							window.setTimeout(schifffahren, 16);
+					}
+					
+					
+					// Reaktion bei Betätigung der Pfeiltasten
+					window.addEventListener('keydown', function (e) {
+						key = e.keyCode;
+						if(key==38) //runter
+						{
+							yGeschwindigkeit=-geschwindigkeit;
+						}
+						else
+						{
+							if(key==40) //hoch
+							{
+								yGeschwindigkeit=geschwindigkeit;
+							}
+							else
+							{
+								if(key==39) //rechts
+								{
+									yGeschwindigkeit=0;
+								}
+							}
+						}
+					})
+					
+					
+					function hindernis()
+					{
+						for(i=1; i<anzahlH; i++)
+						{
+							PlatziereElement(elementTyp[i],'h'+i,xPosH[i],yPosH[i],widthH[i],heightH[i],'png','visible');
+						/*
+							if(elementTyp[i]==1)
+								PlatziereElement('Eisberg','h'+i,xPosH[i],yPosH[i],200,84,'png','visible');
+							if(elementTyp[i]==2)
+								PlatziereElement('Kampfschiff','h'+i,xPosH[i],yPosH[i],189,145,'png','visible');
+							if(elementTyp[i]==3)
+								PlatziereElement('Insel_Tod','h'+i,xPosH[i],yPosH[i],146,154,'png','visible');
+							if(elementTyp[i]==4)
+								PlatziereElement('Insel_Schatz2','h'+i,xPosH[i],yPosH[i],146,154,'png','visible');
+							if(elementTyp[i]==5)
+								PlatziereElement('Insel_Schatz5','h'+i,xPosH[i],yPosH[i],146,154,'png','visible');
+							if(elementTyp[i]==6)
+								PlatziereElement('Schatzschiff5','h'+i,xPosH[i],yPosH[i],189,145,'png','visible');
+							if(elementTyp[i]==7)
+								PlatziereElement('Schatzschiff10','h'+i,xPosH[i],yPosH[i],189,145,'png','visible');
+							*/
+						}
+					}
+					
+					
+					function gold()
+					{
+						PlatziereElement('Barren','gold',70,yPos+55,80,68,'png','hidden');
+					}
+					
+					function beute()
+					{
+						if (iteration==0)
+						{
+							aktuell=yPos+55;
+							document.getElementById('gold').setAttribute("visibility", "visible");
+							document.getElementById('gold').setAttribute("y", aktuell);
+						}
+						if(iteration<60)
+						{
+							document.getElementById('gold').setAttribute("opacity", 1-iteration/60);
+							document.getElementById('gold').setAttribute("y", aktuell+iteration*(-2));
+							
+							iteration=iteration+1;
+							window.setTimeout(beute, 16);
+						}
+						else
+						{
+							document.getElementById('gold').setAttribute("opacity", 1.0);
+							document.getElementById('gold').setAttribute("visibility", "hidden");
+							iteration=0;
+						}
+					}
+					
+					function score()
+					{
+						var object = document.createElementNS(svgns, 'rect');
+						object.setAttributeNS(null,'x',770);
+						object.setAttributeNS(null,'y',0);
+						object.setAttributeNS(null,'width',130);
+						object.setAttributeNS(null,'height',45);
+						document.getElementById('svg1').appendChild(object);
+						
+						PlatziereElement('Barren','Anzeige',783,4,40,40,'png','visible');
+						
+						
+						object2.setAttributeNS(null,'x',890);
+						object2.setAttributeNS(null,'y',37);
+						object2.setAttributeNS(null,'id','scoring');
+						object2.setAttributeNS(null,'font-family',"sans-serif");
+						object2.setAttributeNS(null,'font-size',"37px");
+						object2.setAttributeNS(null,'fill',"white");
+						object2.setAttributeNS(null,'text-anchor',"end");
+						object2.textContent=konto;
+						document.getElementById('svg1').appendChild(object2);
+
+					}
+					
+					function gameover()
+					{
+						spiel=false;
+						PlatziereElement('Crash','kollision',10,yPos+75,279,180,'png','visible');
+						kontoleerung();
+					}
+					
+					function kontoleerung()
+					{
+						if(konto>0)
+						{
+							konto=konto-1;
+							object2.textContent=konto;
+							window.setTimeout(kontoleerung, 5);
+						}
+						else
+						{
+							var object4 = document.createElementNS(svgns, 'rect');
+							object4.setAttributeNS(null,'x',100);
+							object4.setAttributeNS(null,'y',150);
+							object4.setAttributeNS(null,'width',700);
+							object4.setAttributeNS(null,'height',200);
+							document.getElementById('svg1').appendChild(object4);
+						
+							var object3 = document.createElementNS(svgns, 'text');
+							object3.setAttributeNS(null,'x',135);
+							object3.setAttributeNS(null,'y',285);
+							object3.setAttributeNS(null,'font-family',"sans-serif");
+							object3.setAttributeNS(null,'font-size',"100px");
+							object3.setAttributeNS(null,'fill',"red");
+							object3.textContent="GAME OVER";
+							document.getElementById('svg1').appendChild(object3);
+						}
+					}
+					
+					function finale()
+					{
+						spiel=false;
+						if(konto>299)
+							schieben();
+						else
+							gameover();
+					}1	
+					
+					function schieben()
+					{
+						if(iteration==0)
+						{
+							PlatziereElement("Schatz","schatzkiste",150,yPos+150,80,71,"png",'visible');
+						}
+						if(iteration<120)
+						{
+							document.getElementById('schatzkiste').setAttribute("x", 150+iteration*0.5);
+							document.getElementById('schatzkiste').setAttribute("y", yPos+150+iteration/120*(300-yPos-150));
+							iteration=iteration+1;
+							window.setTimeout(schieben, 16);
+						}
+						if(iteration>119 && iteration <331)
+						{
+							document.getElementById('schatzkiste').setAttribute("x", 210+(iteration-120)*1);
+							document.getElementById('schatzkiste').setAttribute("y", 300+(iteration-120)/120*40);
+							iteration=iteration+1;
+							window.setTimeout(schieben, 16);
+						}
+						if(iteration==330)
+							graben();
+					}
+					
+					function graben()
+					{
+						PlatziereElement("Loch","versteckLoch",400,400,150,52,"png",'visible');
+						window.setTimeout(verschwinden, 1000);
+					}
+					
+					function verschwinden()
+					{
+						document.getElementById('schatzkiste').setAttribute("visibility", 'hidden');
+						window.setTimeout(ziel, 1000);
+					}
+					
+					function ziel()
+					{
+						document.getElementById('versteckLoch').setAttribute("opacity", 0);
+						PlatziereElement("Logo","gcLogo",420,410,60,60,"png",'visible');
+						// GC Logo anklickbar
+						document.getElementById('gcLogo').setAttribute("onclick", "ergebnis();");
+					}
+					
+					function ergebnis()
+					{
+						for(i=1; i<32; i++)
+							for(j=1; j<6; j++)
+							{
+								if(resultat[(j-1)*31+i]==1)
+								{
+									var object4 = document.createElementNS(svgns, 'rect');
+									object4.setAttributeNS(null,'x',500+10*i);
+									object4.setAttributeNS(null,'y',430+10*j);
+									object4.setAttributeNS(null,'width',10);
+									object4.setAttributeNS(null,'height',10);
+									document.getElementById('svg1').appendChild(object4);
+								}
+							}
+					}
+					
+					function schwierigkeit(zahl)
+					{
+						var goldsumme=0;
+						if(zahl==1)
+						{
+							goldsumme=600;
+							geschwindigkeit=1;
+						}
+						if(zahl==2)
+						{
+							goldsumme=480;
+							geschwindigkeit=3;
+						}
+						if(zahl==3)
+						{
+							goldsumme=350;
+							geschwindigkeit=5;
+						}
+						parcour(goldsumme);
+					}
+					
+					function parcour(goldsumme)
+					{
+						var aktSumme=0;
+						var i=2;
+						if(goldsumme>0)
+						{
+							while(aktSumme<goldsumme)
+							{
+								xPosH[i]=Zufallszahl(200,400)+xPosH[i-1];
+								yPosH[i]=Zufallszahl(0,300);
+								elementTyp[i]=Zufallszahl(1,7);
+								goldwert[i]=goldwerte[elementTyp[i]];
+								aktSumme=aktSumme+goldwert[i];
+								heightH[i]=heightsH[elementTyp[i]];
+								widthH[i]=widthsH[elementTyp[i]];
+								i=i+1;
+							}
+							xPosH[i]=xPosH[i-1]+400;
+							yPosH[i]=0;
+							heightH[i]=500;
+							widthH[i]=1000;
+							elementTyp[i]=8;
+							goldwert[i]=-1;
+							anzahlH=i+1;
+						}
+					}
+					
+				]]>
+				</script>
+				
+				
+				
+			</defs>
+
+			<rect x="0" y="0" width="900" height="500" style="fill: #0000AA ;"/>
+			<image xlink:href="Elemente/Spieler.png" x="50" y="80" height="408px" width="376px"/>
+			<text x="100" y="60" style="font-size:48px; fill:yellow; stroke:black; stroke-width:.5px;">Auf den Spuren der "Golden Cache"</text>
+			<text x="400" y="120" style="font-size:48px; fill:yellow; stroke:black; stroke-width:.5px;">- #2 Beutejagd -</text>
+			<g transform="translate(500,180)" onclick="schwierigkeit(1);wasser();fliessen();schiff();hindernis();schiffV();schifffahren();gold();score();" >
+				<rect id="Button3" x="0" y="0" width="300" height="50" style="fill: yellow ;stroke:#000000;stroke-width:1"/>
+				<text x="95" y="38" font-family="sans-serif" font-size="36px" fill="black">Leicht</text>
+			</g>
+			<g transform="translate(500,280)" onclick="schwierigkeit(2);wasser();fliessen();schiff();hindernis();schiffV();schifffahren();gold();score();" >
+				<rect id="Button3" x="0" y="0" width="300" height="50" style="fill: yellow ;stroke:#000000;stroke-width:1"/>
+				<text x="95" y="38" font-family="sans-serif" font-size="36px" fill="black">Mittel</text>
+			</g>
+			<g transform="translate(500,380)" onclick="schwierigkeit(3);wasser();fliessen();schiff();hindernis();schiffV();schifffahren();gold();score();" >
+				<rect id="Button3" x="0" y="0" width="300" height="50" style="fill: yellow ;stroke:#000000;stroke-width:1"/>
+				<text x="95" y="38" font-family="sans-serif" font-size="36px" fill="black">Schwer</text>
+			</g>
+			<text x="65" y="490" style="font-size:15px; fill:yellow;">created by wickiesollst for Geocache GC794KY</text>
+			
+		</svg>
+
+
+	</body>
+</html>

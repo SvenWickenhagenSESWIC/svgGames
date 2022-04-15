@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>burst_pipe</title>
+		<meta charset="UTF-8">
+	</head>
+	<body onload="Spielfeld();">
+		<svg id="svg1" width="1800" height="1200" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+			<!-- Definitionen -->
+			<defs>
+			
+				<!-- Funktionen -->
+				<script type="text/javascript"><![CDATA[
+				
+				
+					var svgns = "http://www.w3.org/2000/svg";
+					var xlink = 'http://www.w3.org/1999/xlink';
+					
+					// 1 Mauer
+					// 2 Gerade
+					// 3 Endteil
+					// 4 T-Teil
+					// 5 Kurve
+					// 6 Doppelkurve
+					// 7 Rohr in Mauer 1
+					// 8 Rohr in Mauer 2
+					
+					Teil = new Array(); //0 1 2 3 4 5 6 7 8 9101112
+					Teil[ 0] = new Array( 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,7,1 );
+					Teil[ 1] = new Array( 1,5,5,3,5,3,5,5,5,5,5,3,3,1,5,5,3,5,3,3,1,1,2,1 );
+					Teil[ 2] = new Array( 1,2,2,2,5,5,2,2,4,5,5,5,2,3,5,4,5,5,5,4,1,1,2,1 );
+					Teil[ 3] = new Array( 8,5,5,4,2,4,4,4,4,2,2,4,4,4,2,4,4,2,2,4,2,2,4,1 );
+					Teil[ 4] = new Array( 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1 );
+					Teil[ 5] = new Array( 1,5,2,5,3,3,5,5,3,5,5,5,1,3,5,3,3,1,1,1,1,1,2,1 );
+					Teil[ 6] = new Array( 1,2,1,2,2,2,4,5,3,4,4,4,3,2,5,5,2,1,1,1,1,1,2,1 );
+					Teil[ 7] = new Array( 8,4,2,4,4,4,4,2,2,4,4,4,4,4,2,4,4,2,2,2,2,2,5,1 );
+					Teil[ 8] = new Array( 1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1 );
+				
+					Winkel = new Array(); //0 1 2 3 4 5 6 7 8 9101112
+					Winkel[ 0] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					Winkel[ 1] = new Array( 0,0,1,0,2,3,2,2,0,2,2,0,0,0,0,1,1,0,0,0,0,0,0,0 );
+					Winkel[ 2] = new Array( 0,1,0,1,2,2,0,0,0,1,2,1,0,3,1,0,1,1,3,2,0,0,0,0 );
+					Winkel[ 3] = new Array( 0,2,0,0,0,2,0,3,0,0,1,2,0,0,0,0,0,0,1,2,1,1,2,0 );
+					Winkel[ 4] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					Winkel[ 5] = new Array( 0,3,1,3,2,1,2,2,2,2,3,1,0,2,2,3,3,0,0,0,0,0,0,0 );
+					Winkel[ 6] = new Array( 0,0,0,1,1,0,1,2,3,1,2,2,2,1,2,3,1,0,0,0,0,0,0,0 );
+					Winkel[ 7] = new Array( 0,1,0,2,1,2,2,1,1,1,1,1,1,1,0,2,2,1,1,1,1,1,3,0 );
+					Winkel[ 8] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					
+					Drehbar = new Array(); //0 1 2 3 4 5 6 7 8 91011121314151617181920212223
+					Drehbar[ 0] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					Drehbar[ 1] = new Array( 0,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,1,1,0,0,0,0 );
+					Drehbar[ 2] = new Array( 0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0 );
+					Drehbar[ 3] = new Array( 0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0 );
+					Drehbar[ 4] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					Drehbar[ 5] = new Array( 0,1,1,1,1,1,1,1,1,1,1,1,0,1,1,1,1,0,0,0,0,0,0,0 );
+					Drehbar[ 6] = new Array( 0,1,0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0 );
+					Drehbar[ 7] = new Array( 0,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0 );
+					Drehbar[ 8] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					
+					function drehen(element,i,j)
+					{
+						Winkel[i][j]=Winkel[i][j]+1
+						if(Winkel[i][j]==4)
+							Winkel[i][j]=0
+						element.setAttribute("transform", 'rotate('+(Winkel[i][j]*90)+')');
+
+					}
+					
+					function Spielfeld()
+					{
+						for(i=0; i<9; i++)
+						{
+							for(j=0; j<24; j++)
+							{
+								var object1 = document.createElementNS(svgns, 'g');
+								object1.setAttributeNS(null,'transform','translate('+(68*j+100)+','+(68*i+150)+')');
+								document.getElementById('svg1').appendChild(object1);
+								
+								var object2 = document.createElementNS(svgns, 'g');
+								//object2.setAttributeNS(null,'id','drehung_'+i+'_'+j); 
+								object2.setAttributeNS(null,'transform','rotate('+(Winkel[i][j]*90)+')');
+								if(Drehbar[i][j]==1)
+								{
+									object2.setAttributeNS(null,'cursor','pointer');
+									object2.setAttributeNS(null,'onmousedown','drehen(this,'+i+','+j+');');
+								}
+								object1.appendChild(object2);
+								
+								
+								var object = document.createElementNS(svgns, 'image');
+								object.setAttributeNS(null,'width','68px');
+								object.setAttributeNS(null,'height','68px');
+								if(Teil[i][j]==1)
+									object.setAttributeNS(xlink,'xlink:href','6_Mauer.png');
+								if(Teil[i][j]==2)
+									object.setAttributeNS(xlink,'xlink:href','1_Gerade.png');
+								if(Teil[i][j]==3)
+									object.setAttributeNS(xlink,'xlink:href','5_Ende.png');
+								if(Teil[i][j]==4)
+									object.setAttributeNS(xlink,'xlink:href','5_T-Kreuzung.png');
+								if(Teil[i][j]==5)
+									object.setAttributeNS(xlink,'xlink:href','2_Kurve.png');
+								if(Teil[i][j]==8)
+									object.setAttributeNS(xlink,'xlink:href','7_Maueranschluss.png');
+								if(Teil[i][j]==7)
+									object.setAttributeNS(xlink,'xlink:href','8_Maueranschluss2.png');
+								
+								
+								
+								
+								object.setAttributeNS(null,'x',-34);
+								object.setAttributeNS(null,'y',-34);
+								object2.appendChild(object);								
+							}
+						}
+					}
+				]]>
+				</script>
+				
+				
+		
+			</defs>
+			<g id="Teil1">
+				<image x="1280" y="0" width="500px" height="130px" xlink:href="Wasserhahn.jpg"></image>
+			</g>
+
+		</svg>
+
+
+	</body>
+</html>

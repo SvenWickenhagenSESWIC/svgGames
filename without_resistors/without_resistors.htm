@@ -1,0 +1,1131 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>without resistors</title>
+		<meta charset="UTF-8">
+		<link href="css3-transform-rotate.css"
+			  rel="stylesheet">
+	</head>
+	<body>
+		<svg width="1200" height="700" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+
+			<!-- Definitionen -->
+			<defs>
+			
+				<!-- Funktionen -->
+				<script type="text/javascript"><![CDATA[
+				
+					// Mausinteraktionen
+					document.onmousemove = bewegen;
+					document.onmouseup = ablegen;
+					
+					function abbrechen()
+					{
+						return false;
+					}
+					
+					document.onselectstart = abbrechen;
+					document.ondragstart = abbrechen;
+					
+					var bewegteil = null;
+					var gesperrt = false;
+					var gerastet = false;
+					var rotFlag = true;
+					var n=0;
+					var m=0;
+					var teilnr=0;
+					var naehe=15;
+					var abbrechen=false;
+					var off=true;
+					var buttonFlag=false;
+					var x=0;
+					var loben=10;
+					var lseite=0;
+					
+					//  		ID:     0	1	2	3	4	5	6	7	8	9	10	11	12	13	14	15	16	17	18	19	20	21	22
+					xwert = new Array( 650,500,450,150,650,450,350,150, 50,600,200,400,150,250,600,550,100,650,300,300,650,500,550 );
+					ywert = new Array( 300, 50,250,350,550,450,250,650,550,150,550,150,500,500,250,200,450,100,350,450,400,350,400 );
+					wwert = new Array( 270,180,270,  0,270,180,270,  0, 90,  0,180,  0,270, 90,180,270,180, 90,180,  0, 90,  0, 90 );
+					//     Für KO:       X     X              X    X               X              X                       
+					xpos = new Array;
+					ypos = new Array;
+					wpos  = new Array(  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0 );
+					
+					W1 = new Array(); //0 1 2 3 4 5 6 7 8 9101112
+					W1[ 0] = new Array( 0,0,0,0,0,0,0,1,0,1,0,1,0 );
+					W1[ 1] = new Array( 0,0,0,0,0,0,2,0,2,0,2,0,2 );
+					W1[ 2] = new Array( 0,0,0,0,0,0,0,1,0,1,0,1,0 );
+					W1[ 3] = new Array( 0,0,0,0,0,0,2,0,2,0,2,0,2 );
+					W1[ 4] = new Array( 0,0,0,0,0,0,0,1,0,1,0,1,0 );
+					W1[ 5] = new Array( 0,0,0,0,0,0,2,0,2,0,2,0,2 );
+					W1[ 6] = new Array( 0,1,0,1,0,1,0,1,0,1,0,1,0 );
+					W1[ 7] = new Array( 2,0,2,0,2,0,2,0,2,0,2,0,2 );
+					W1[ 8] = new Array( 0,1,0,1,0,1,0,1,0,1,0,1,0 );
+					W1[ 9] = new Array( 2,0,2,0,2,0,0,0,0,0,0,0,2 );
+					W1[10] = new Array( 0,1,0,1,0,0,0,0,0,0,0,0,0 );
+					W1[11] = new Array( 2,0,2,0,2,0,0,0,0,0,0,0,2 );
+					W1[12] = new Array( 0,1,0,1,0,0,0,0,0,0,0,0,0 );
+					
+					W2 = new Array(); //0 1 2 3 4 5 6 7 8 9101112
+					W2[ 0] = new Array( 0,0,0,0,0,0,0,0,1,0,1,0,0 );
+					W2[ 1] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					W2[ 2] = new Array( 0,0,0,0,0,0,2,0,3,0,3,0,2 );
+					W2[ 3] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					W2[ 4] = new Array( 0,0,0,0,0,0,2,0,3,0,3,0,2 );
+					W2[ 5] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					W2[ 6] = new Array( 0,0,1,0,1,0,3,0,3,0,3,0,2 );
+					W2[ 7] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					W2[ 8] = new Array( 2,0,3,0,3,0,1,0,1,0,1,0,2 );
+					W2[ 9] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					W2[10] = new Array( 2,0,3,0,2,0,0,0,0,0,0,0,2 );
+					W2[11] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					W2[12] = new Array( 0,0,1,0,0,0,0,0,0,0,0,0,0 );
+					
+					W3 = new Array(); //0 1 2 3 4 5 6 7 8 9101112
+					W3[ 0] = new Array( 0,0,0,0,0,0,0,0,0,1,0,0,0 );
+					W3[ 1] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					W3[ 2] = new Array( 0,0,0,0,0,0,0,0,0,1,0,0,0 );
+					W3[ 3] = new Array( 0,0,0,0,0,0,2,0,2,0,2,0,2 );
+					W3[ 4] = new Array( 0,0,0,0,0,0,0,0,0,1,0,0,0 );
+					W3[ 5] = new Array( 0,0,0,0,0,0,2,0,2,0,2,0,2 );
+					W3[ 6] = new Array( 0,0,0,1,0,1,0,1,0,1,0,0,0 );
+					W3[ 7] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,2 );
+					W3[ 8] = new Array( 0,0,0,1,0,1,0,1,0,1,0,0,0 );
+					W3[ 9] = new Array( 2,0,2,0,2,0,0,0,0,0,0,0,2 );
+					W3[10] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					W3[11] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					W3[12] = new Array( 0,0,0,0,0,0,0,0,0,0,0,0,0 );
+					
+					W4 = new Array(); //0 1 2 3 4 5 6 7 8 91011121314151617181920
+								//		N 5 0 ° 5 1 , 9 5 6 '   E11 ° 3 8 , 7 7 0 '
+					W4[ 1] = new Array( 1,1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,1,0,1,0,0,0 );
+					W4[ 2] = new Array( 0,0,1,1,1,0,0,0,1,0,0,0,1,0,1,1,0,0,0,0,0,0 );
+					W4[ 3] = new Array( 1,1,0,0,0,0,0,1,0,1,0,0,1,1,0,0,1,0,0,1,0,0 );
+					W4[ 4] = new Array( 1,0,1,1,1,1,0,1,1,0,0,0,0,0,1,0,1,0,1,1,1,0 );
+					W4[ 5] = new Array( 1,0,1,1,0,0,0,0,0,0,1,0,0,1,1,1,0,0,0,0,1,1 );
+					W4[ 6] = new Array( 0,1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,1,0,0 );
+					W4[ 7] = new Array( 0,0,0,1,1,0,0,0,1,0,0,0,1,0,1,1,0,0,0,0,1,0 );
+					W4[ 8] = new Array( 1,0,0,0,0,0,0,0,0,1,0,0,1,1,0,0,1,0,0,0,0,0 );
+					W4[ 9] = new Array( 1,1,1,0,0,1,0,1,0,1,0,0,0,0,0,0,1,0,1,1,0,0 );
+					W4[10] = new Array( 1,0,1,0,1,0,1,0,1,0,0,0,0,1,0,1,0,1,0,0,1,0 );
+					W4[11] = new Array( 0,1,0,0,0,0,0,1,0,1,0,0,1,0,0,0,1,0,0,0,0,0 );
+					W4[12] = new Array( 1,0,1,0,1,0,0,0,1,0,0,0,1,0,0,1,0,0,0,0,0,0 );
+					
+					function RotationFreigabe()
+					{
+						rotFlag=true;
+					}
+					
+					function greifen(element)
+					{
+					  if(bewegteil == null && !gesperrt && !gerastet)
+					  {
+						rotFlag=false;
+						n = parseInt(element.id);
+												
+						bewegteil = document.getElementById(n);
+						if (bewegteil != null)
+						{
+							//alert("Greifen: "+n);
+							teilnr = n;      
+						}
+					  }
+					}
+					
+					function bewegen(ereignis)
+					{
+						if(bewegteil != null && !gesperrt)
+					  {
+						// Aktuelle Position des Teils
+						xpos[teilnr] = ereignis.pageX;
+						ypos[teilnr] = ereignis.pageY;
+						
+						if(teilnr==1)
+						{
+							if(wpos[teilnr]==0 || wpos[teilnr]==180) //h 1
+							{
+								for(n=0; n<13; n++)
+								{
+									for(m=0; m<13; m++)
+									{
+										if(W3[n][m]==1)
+										{
+											if(xpos[teilnr]-(m+1)*50>-naehe && xpos[teilnr]-(m+1)*50<naehe && ypos[teilnr]-(n+1)*50>-naehe && ypos[teilnr]-(n+1)*50<naehe)
+											{
+												//alert("hier");
+												xpos[teilnr]=(m+1)*50;
+												ypos[teilnr]=(n+1)*50;
+												bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+												return;
+											}
+										}
+										
+									}
+								}
+								bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+							}
+							else //v 2 
+							{
+								for(n=0; n<13; n++)
+								{
+									for(m=0; m<13; m++)
+									{
+										if(W3[n][m]==2)
+										{
+											if(xpos[teilnr]-(m+1)*50>-naehe && xpos[teilnr]-(m+1)*50<naehe && ypos[teilnr]-(n+1)*50>-naehe && ypos[teilnr]-(n+1)*50<naehe)
+											{
+												//alert("hier");
+												xpos[teilnr]=(m+1)*50;
+												ypos[teilnr]=(n+1)*50;
+												bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+												return;
+											}
+										}
+										
+									}
+								}
+								bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+							}
+						}
+						else
+						{
+							if(teilnr>1 && teilnr<9)
+							{
+								if(wpos[teilnr]==0 || wpos[teilnr]==180) //h 1 3
+								{
+									for(n=0; n<13; n++)
+									{
+										for(m=0; m<13; m++)
+										{
+											if(W2[n][m]==1 || W2[n][m]==3)
+											{
+												if(xpos[teilnr]-(m+1)*50>-naehe && xpos[teilnr]-(m+1)*50<naehe && ypos[teilnr]-(n+1)*50>-naehe && ypos[teilnr]-(n+1)*50<naehe)
+												{
+													//alert("hier");
+													xpos[teilnr]=(m+1)*50;
+													ypos[teilnr]=(n+1)*50;
+													bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+													return;
+												}
+											}
+											
+										}
+									}
+									bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+								}
+								else //v 2  3
+								{
+									for(n=0; n<13; n++)
+									{
+										for(m=0; m<13; m++)
+										{
+											if(W2[n][m]==2 || W2[n][m]==3)
+											{
+												if(xpos[teilnr]-(m+1)*50>-naehe && xpos[teilnr]-(m+1)*50<naehe && ypos[teilnr]-(n+1)*50>-naehe && ypos[teilnr]-(n+1)*50<naehe)
+												{
+													//alert("hier");
+													xpos[teilnr]=(m+1)*50;
+													ypos[teilnr]=(n+1)*50;
+													bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+													return;
+												}
+											}
+											
+										}
+									}
+									bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+								}
+							}
+							else
+							{
+								if(wpos[teilnr]==0 || wpos[teilnr]==180) //h 1
+								{
+									for(n=0; n<13; n++)
+									{
+										for(m=0; m<13; m++)
+										{
+											if(W1[n][m]==1)
+											{
+												if(xpos[teilnr]-(m+1)*50>-naehe && xpos[teilnr]-(m+1)*50<naehe && ypos[teilnr]-(n+1)*50>-naehe && ypos[teilnr]-(n+1)*50<naehe)
+												{
+													//alert("hier");
+													xpos[teilnr]=(m+1)*50;
+													ypos[teilnr]=(n+1)*50;
+													bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+													return;
+												}
+											}
+											
+										}
+									}
+									bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+								}
+								else //v 2 
+								{
+									for(n=0; n<13; n++)
+									{
+										for(m=0; m<13; m++)
+										{
+											if(W1[n][m]==2)
+											{
+												if(xpos[teilnr]-(m+1)*50>-naehe && xpos[teilnr]-(m+1)*50<naehe && ypos[teilnr]-(n+1)*50>-naehe && ypos[teilnr]-(n+1)*50<naehe)
+												{
+													//alert("hier");
+													xpos[teilnr]=(m+1)*50;
+													ypos[teilnr]=(n+1)*50;
+													bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+													return;
+												}
+											}
+											
+										}
+									}
+									bewegteil.setAttribute("transform", "translate("+(xpos[teilnr])+","+(ypos[teilnr])+")");
+								}
+							}
+						}
+					  }
+					}
+					
+					function ablegen()
+					{
+					  if(bewegteil != null)
+					  {
+						//Teil ablegen
+						bewegteil = null;
+						
+						window.setTimeout(RotationFreigabe, 100);
+
+						for(n=0; n<23; n++)
+						{
+							if(xpos[n]!=xwert[n] || ypos[n]!=ywert[n] || wpos[n]!=wwert[n])
+							{
+								//document.getElementById(100).textContent=""+(n-1);
+								break
+							}
+							if(n==22)
+							{
+								// Zahnräder in der Position fixieren
+								gerastet=true;
+								rotFlag=false;
+								buttonFlag=true;
+								m=0;
+								Steckdose();
+								
+							}
+						}
+					  }
+					}
+					
+					function Steckdose()
+					{
+						if(m<41)
+						{
+							x=1310-7*m;
+							document.getElementById('Dose').setAttribute("transform", "translate("+x+",300)");
+							m+=1;
+							window.setTimeout(Steckdose, 50);
+						}
+						else
+						{
+							if(m<81)
+							{
+								loben=10*Math.cos(90/40*(m-40)/180*Math.PI);
+								lseite=140*Math.sin(90/40*(m-40)/180*Math.PI);
+								document.getElementById('seite').setAttribute("x", -loben-lseite);
+								document.getElementById('seite').setAttribute("width", lseite);
+								document.getElementById('oben').setAttribute("x", -loben);
+								document.getElementById('oben').setAttribute("width", loben);
+								m+=1;
+								window.setTimeout(Steckdose, 30);
+							}
+							else
+							{
+								if(m<111)
+								{
+									x=1310-7*(m-40);
+									document.getElementById('Dose').setAttribute("transform", "translate("+x+",300)");
+									m+=1;
+									window.setTimeout(Steckdose, 50);
+								}
+								else
+								{
+									document.getElementById('80').setAttribute("style","fill: #B1FB17;");
+									document.getElementById('81').setAttribute("style","fill: #B1FB17;");
+									document.getElementById('85').setAttribute("style","fill: orange;");
+								}
+							}
+						}
+					}
+
+					function Drehen(element)
+					{
+						if(rotFlag)
+						{
+							n = parseInt(element.id);
+							wpos[n-30]=(wpos[n-30]+90)%360;
+							//alert(n);
+							document.getElementById(n).setAttribute("transform", "rotate("+wpos[n-30]+")");
+
+						}
+					}
+					
+					function Button()
+					{
+						if(buttonFlag)
+						{
+							if(off)
+							{
+								document.getElementById('82').setAttribute("style","fill: #4C4646;");
+								document.getElementById('83').setAttribute("style","fill: black;");
+								document.getElementById('84').setAttribute("style","fill: orange;");
+								document.getElementById('85').setAttribute("style","fill: gray;");
+								off=false;
+								buttonFlag=false;
+								n=0;
+								Ablauf();
+							}
+							else
+							{
+								document.getElementById('83').setAttribute("style","fill: #4C4646;");
+								document.getElementById('82').setAttribute("style","fill: black;");
+								document.getElementById('85').setAttribute("style","fill: orange;");
+								document.getElementById('84').setAttribute("style","fill: gray;");
+								off=true;
+							}
+						}
+					}
+					
+					function Ablauf()
+					{
+						if(n%2==0)
+						{
+							for(m=1; m<13; m++)
+							{
+								if(W4[m][n/2]==1)
+									document.getElementById(1000+m).setAttribute("style","fill: #B1FB17;");
+							}
+						}
+						else
+						{
+							for(m=1; m<13; m++)
+							{
+								document.getElementById(1000+m).setAttribute("style","fill: gray;");
+							}
+						}
+						n+=1;
+						if(n<44)
+							window.setTimeout(Ablauf, 1000);
+						else
+						{
+							buttonFlag=true;
+							window.setTimeout(Button, 10);
+						}
+					}
+				
+				]]>
+				</script>
+				
+				<g id="DreieckGleichseitig">
+					<path d="M 0.0,15.0 L 13,-7.5 L -13,-7.5 Z" style="stroke:#000000;stroke-width:3"/>
+				</g>
+				<g id="Kontakt">
+					<rect x="-20" y="-20" width="40" height="40" style="fill: #C0C0C0;"/>
+					<path d="M 0.0,15.0 L 13,-7.5 L -13,-7.5 Z" style="stroke:#000000;stroke-width:3;"/>
+				</g>
+				<path id="Leiste" d="M 0.0,49.0 L 5.0,44.0 L 5.0,-44.0 L 0.0,-49.0 L -5.0,-44.0 L -5.0,44.0 Z"/>
+				<path id="Kabel" d="M -50.0,-2 A 48 52 0 0 1 -2 50 h -4 A 44 48 0 0 0 -50 2 Z" style="fill: #C0C0C0;stroke:#000000;stroke-width:1;"/>
+				<g id="Stecker">
+					<use xlink:href="#Kabel" width="100" height="100"/>
+					<g transform="translate(4,0) rotate(-90)">
+						<use xlink:href="#Kabel" width="100" height="100"/>
+					</g>
+					<rect x="-10" y="45" width="20" height="5" style="fill: black;"/>
+					<rect x="-8" y="50" width="16" height="5" style="fill: gray;"/>
+					<rect x="-10" y="55" width="20" height="5" style="fill: black;"/>
+					<rect x="-8" y="60" width="16" height="5" style="fill: gray;"/>
+					<rect x="-10" y="65" width="20" height="5" style="fill: black;"/>
+					<path d="M -15,70 H 15 A 100 100 0 0 0 50 150 V 180 H -50 V 150 A 100 100 0 0 0 -15 70 Z" style="fill: black;"/>
+					<rect x="-30" y="180" width="10" height="20" style="fill: black;"/>
+					<rect x="20" y="180" width="10" height="20" style="fill: black;"/>
+					<rect x="-30" y="200" width="10" height="20" style="fill: #C0C0C0;"/>
+					<rect x="20" y="200" width="10" height="20" style="fill: #C0C0C0;"/>
+					<circle cx="-25" cy="220" r="5" style="fill: #C0C0C0;"/>
+					<circle cx="25" cy="220" r="5" style="fill: #C0C0C0;"/>
+					
+				</g>
+				<g id="Widerstand1">
+					<rect x="-50" y="-2" width="100" height="4" style="fill: #C0C0C0;"/>
+					<rect x="-25" y="-10" width="50" height="20" style="fill: #FFE5B4;stroke:#000000;stroke-width:2;"/>
+					<rect x="-20" y="-9" width="4" height="18" style="fill: black;"/>
+					<rect x="-10" y="-9" width="4" height="18" style="fill: red;"/>
+					<rect x="0" y="-9" width="4" height="18" style="fill: brown;"/>
+					<rect x="16" y="-9" width="4" height="18" style="fill: red;"/>
+				</g>
+				<g id="Widerstand2">
+					<rect x="-100" y="-2" width="200" height="4" style="fill: #C0C0C0;"/>
+					<rect x="-75" y="-10" width="150" height="20" style="fill: #FFE5B4;stroke:#000000;stroke-width:2;"/>
+					<rect x="-60" y="-9" width="6" height="18" style="fill: black;"/>
+					<rect x="-40" y="-9" width="6" height="18" style="fill: blue;"/>
+					<rect x="-20" y="-9" width="6" height="18" style="fill: brown;"/>
+					<rect x="34" y="-9" width="6" height="18" style="fill: red;"/>
+				</g>
+				<g id="Widerstand3">
+					<rect x="-150" y="-2" width="300" height="4" style="fill: #C0C0C0;"/>
+					<rect x="-125" y="-10" width="250" height="20" style="fill: #FFE5B4;stroke:#000000;stroke-width:2;"/>
+					<rect x="-100" y="-9" width="8" height="18" style="fill: brown;"/>
+					<rect x="-60" y="-9" width="8" height="18" style="fill: black;"/>
+					<rect x="-20" y="-9" width="8" height="18" style="fill: brown;"/>
+					<rect x="52" y="-9" width="8" height="18" style="fill: red;"/>
+				</g>
+			
+			</defs>
+			
+			
+			<!-- Leiterplatte -->
+			<rect x="-50" y="-50" width="750" height="800" style="fill: #306754;"/>
+			
+	
+			
+			<!-- Leitungen -->
+			<rect x="248" y="648" width="100" height="4" style="fill: #C0C0C0;"/>
+			<rect x="552" y="648" width="100" height="4" style="fill: #C0C0C0;"/>
+			<rect x="48" y="248" width="4" height="100" style="fill: #C0C0C0;"/>
+			<rect x="248" y="48" width="100" height="4" style="fill: #C0C0C0;"/>
+	
+
+			<rect id="80" x="20" y="20" width="260" height="260" style="fill: gray;"/>
+			<rect x="25" y="25" width="250" height="250"/>	
+			
+			<g transform="translate(100,50)" id="1001" style="fill: gray;">
+				<g transform="rotate(90)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(100,150)" id="1006" style="fill: gray;">
+				<g transform="rotate(90)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(100,250)" id="1011" style="fill: gray;">
+				<g transform="rotate(90)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(200,50)" id="1002" style="fill: gray;">
+				<g transform="rotate(90)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(200,150)" id="1007" style="fill: gray;">
+				<g transform="rotate(90)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(200,250)" id="1012" style="fill: gray;">
+				<g transform="rotate(90)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(50,100)" id="1003" style="fill: gray;">
+				<g transform="rotate(0)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(50,200)" id="1008" style="fill: gray;">
+				<g transform="rotate(0)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(150,100)" id="1004" style="fill: gray;">
+				<g transform="rotate(0)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(150,200)" id="1009" style="fill: gray;">
+				<g transform="rotate(0)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(250,100)" id="1005" style="fill: gray;">
+				<g transform="rotate(0)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(250,200)" id="1010" style="fill: gray;">
+				<g transform="rotate(0)">
+					<use xlink:href="#Leiste" width="100" height="100"/>
+				</g>
+			</g>
+			
+			
+			
+			
+
+			<rect x="330" y="530" width="240" height="140"/>
+			<rect id="81" x="340" y="540" width="220" height="120" style="fill: gray;"/>
+			<rect id="82" onclick="Button()" x="342" y="542" width="106" height="116"/>
+			<rect id="83" onclick="Button()" x="452" y="542" width="106" height="116" style="fill: #4C4646;"/>
+			
+			<rect id="84" x="360" y="597" width="70" height="6" style="fill: gray;"/>
+			<circle id="85" cx="505" cy="600" r="35" style="fill: gray;"/>
+			<circle cx="505" cy="600" r="30" style="fill: #4C4646;"/>
+			
+
+			
+			
+			<g transform="translate(350,50)" style="fill: yellow;">
+				<g transform="rotate(180)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(450,50)" style="fill: green;">				<!--f X-->
+				<g transform="rotate(180)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(550,50)" style="fill: red;">				<!--f X-->
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(650,50)" style="fill: orange;">
+				<g transform="rotate(270)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			
+			
+			<g transform="translate(350,150)" style="fill: yellow;">			
+				<g transform="rotate(180)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(450,150)" style="fill: orange;">				
+				<g transform="rotate(-90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(550,150)" style="fill: red;">		
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(650,150)" style="fill: blue;">		
+				<g transform="rotate(180)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			
+			
+			<g transform="translate(350,250)" style="fill: green;">			<!--f X-->
+				<g transform="rotate(-90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(450,250)" style="fill: green;">				<!--frei X-->
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(550,250)" style="fill: violet;">			
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(650,250)" style="fill: blue;">			
+				<g transform="rotate(-90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			
+			
+			<g transform="translate(50,350)" style="fill: green;">				
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(150,350)" style="fill: blue;">				<!--f X-->
+				<g transform="rotate(180)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(250,350)" style="fill: yellow;">				
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(350,350)" style="fill: red;">			
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(450,350)" style="fill: yellow;">				
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(550,350)" style="fill: green;">			
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(650,350)" style="fill: red;">			
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			
+			
+			<g transform="translate(50,450)" style="fill: blue;">			
+				<g transform="rotate(-90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(150,450)" style="fill: orange;">		
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(250,450)" style="fill: yellow;">				
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(350,450)" style="fill: orange;">			
+				<g transform="rotate(-90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(450,450)" style="fill: orange;">				<!--frei X-->
+				<g transform="rotate(180)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(550,450)" style="fill: violet;">			
+				<g transform="rotate(180)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(650,450)" style="fill: yellow;">			
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			
+			
+			<g transform="translate(50,550)" style="fill: green;">				<!--frei X-->
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(150,550)" style="fill: red;">			
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(250,550)" style="fill: green;">			
+				<g transform="rotate(180)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(650,550)" style="fill: blue;">				<!--frei X-->
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			
+			
+			<g transform="translate(50,650)" style="fill: green;">			
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(150,650)" style="fill: violet;">				<!--frei X-->
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(250,650)" style="fill: red;">		
+				<g transform="rotate(0)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			<g transform="translate(650,650)" style="fill: violet;">			
+				<g transform="rotate(90)">
+					<use xlink:href="#Kontakt" width="100" height="100"/>
+				</g>
+			</g>
+			
+			<!-- Stecker -->
+			<g id="0" transform="translate(800,350)" style="fill: red;" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="30" transform="rotate(00)" onclick="Drehen(this)">
+					<use xlink:href="#Stecker" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: red;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: blue;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			
+			
+			
+			
+			
+			<g id="1" transform="translate(1000,650)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="31" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand3" width="100" height="100"/>
+					<g transform="translate(-150,0)" style="fill: orange;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(150,0)" style="fill: yellow;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			
+			<g id="2" transform="translate(1050,600)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="32" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand2" width="100" height="100"/>
+					<g transform="translate(-100,0)" style="fill: yellow;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(100,0)" style="fill: orange;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="3" transform="translate(1050,550)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="33" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand2" width="100" height="100"/>
+					<g transform="translate(-100,0)" style="fill: green;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(100,0)" style="fill: yellow;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="4" transform="translate(1050,500)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="34" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand2" width="100" height="100"/>
+					<g transform="translate(-100,0)" style="fill: violet;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(100,0)" style="fill: yellow;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="5" transform="translate(1050,450)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="35" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand2" width="100" height="100"/>
+					<g transform="translate(-100,0)" style="fill: violet;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(100,0)" style="fill: orange;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="6" transform="translate(1050,400)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="36" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand2" width="100" height="100"/>
+					<g transform="translate(-100,0)" style="fill: red;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(100,0)" style="fill: yellow;">
+						<g transform="rotate(-90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="7" transform="translate(1050,350)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="37" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand2" width="100" height="100"/>
+					<g transform="translate(-100,0)" style="fill: green;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(100,0)" style="fill: red;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="8" transform="translate(1050,300)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="38" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand2" width="100" height="100"/>
+					<g transform="translate(-100,0)" style="fill: blue;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(100,0)" style="fill: green;">
+						<g transform="rotate(-90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			
+			
+			<g id="9" transform="translate(950,150)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="39" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: red;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: blue;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="10" transform="translate(950,200)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="40" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: green;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: red;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="11" transform="translate(950,250)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="41" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: yellow;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: orange;">
+						<g transform="rotate(-90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="12" transform="translate(800,300)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="42" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: red;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: orange;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="13" transform="translate(800,250)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="43" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: yellow;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: green;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="14" transform="translate(800,200)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="44" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: blue;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: violet;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="15" transform="translate(800,150)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="45" transform="rotate(00)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: violet;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: red;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="16" transform="translate(800,100)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="46" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: orange;">
+						<g transform="rotate(-90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: blue;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="17" transform="translate(800,50)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="47" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: orange;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: blue;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="18" transform="translate(950,50)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="48" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: red;">
+						<g transform="rotate(-90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: yellow;">
+						<g transform="rotate(180)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="19" transform="translate(950,100)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="49" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: yellow;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: orange;">
+						<g transform="rotate(-90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="20" transform="translate(1100,100)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="50" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: red;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: yellow;">
+						<g transform="rotate(-90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="21" transform="translate(1100,150)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="51" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: yellow;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: green;">
+						<g transform="rotate(0)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			<g id="22" transform="translate(1100,200)" onmousedown="greifen(this);" ondrag="return false;">
+				<g id="52" transform="rotate(0)" onclick="Drehen(this)">
+					<use xlink:href="#Widerstand1" width="100" height="100"/>
+					<g transform="translate(-50,0)" style="fill: green;">
+						<g transform="rotate(-90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>		
+					<g transform="translate(50,0)" style="fill: violet;">
+						<g transform="rotate(90)">
+							<use xlink:href="#DreieckGleichseitig" width="100" height="100"/>
+						</g>
+					</g>
+				</g>
+			</g>
+			
+			<g id="Dose" transform="translate(1320,300)">
+				<rect x="0" y="-75" width="60" height="150" style="fill: gray;"/>
+				<g transform="translate(30,0)">
+					<path d="M 0.0,-48 L 24,-48 L 0,-12 L 24,-20 L -6,28 L 3,30 L -22,48 L -18,18 L -14,24 L 0,0 L -24,8 Z" style="fill:yellow;stroke:#000000;stroke-width:3;"/>
+				</g>
+				<rect id="oben" x="-10" y="-70" width="10" height="140" style="fill: #565051;"/>
+				<rect id="seite" x="-10" y="-70" width="0" height="140" style="fill: #151B54;"/>
+			</g>
+
+			<!--<text x="600" y="100" id="100">0</text>-->
+			
+			
+		</svg>
+
+
+	</body>
+</html>
